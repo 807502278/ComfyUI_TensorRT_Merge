@@ -1,18 +1,8 @@
-numpy
-torch
-torchvision
-
-urllib
-pathlib
-traceback
-rife_arch
 onnxsim
 onnx
-logging
-collections
 kornia
-
 polygraphy
 tensorrt
+# tensorrt==10.5.0
 cuda-python
 huggingface_hub
