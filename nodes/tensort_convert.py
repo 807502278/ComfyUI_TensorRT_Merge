@@ -1,24 +1,16 @@
-import glob
 import os
 import time
 
-from typing import List, Union
+from typing import List
 import numpy as np
 from PIL import Image
 import torch
-from torchvision import transforms
-import torch.nn.functional as F
 
-import comfy.model_management as mm
 import folder_paths
-
 from .models_BiRefNet.models.birefnet import BiRefNet
 from .export_trt.trt_utilities import Engine_4
 from .export_trt.utilities import Engine
 
-
-folder_paths.add_model_folder_path("BiRefNet",os.path.join(folder_paths.models_dir, "BiRefNet"))
-device = "cuda" if torch.cuda.is_available() else "cpu"
 torch.set_float32_matmul_precision(["high", "highest"][0])
 
 def tensor2pil(image):
@@ -46,7 +38,9 @@ model_collect = {
                   "Depth-Anything-2-Onnx/depth_anything_v2_vitl.onnx",
                   "Depth-Anything-2-Onnx/depth_anything_v2_vits.onnx",
                   "depth-pro-onnx/depth_pro.onnx",],
-    "dwpose-onnx" : ["dwpose-onnx/yolox_l_dynamic_batch_opset_17_sim.onnx",
+    "dwpose-onnx" : ["dwpose-onnx/yolox_l.onnx",
+                     "dwpose-onnx/dw-ll_ucoco_384.onnx"],
+    "yolo-nas-pose-onnx" : ["yolo-nas-pose-onnx/yolox_l_dynamic_batch_opset_17_sim.onnx",
                   "yolo-nas-pose-onnx/yolo_nas_pose_l_0.1.onnx",
                   "yolo-nas-pose-onnx/yolo_nas_pose_l_0.2.onnx",
                   "yolo-nas-pose-onnx/yolo_nas_pose_l_0.5.onnx",
@@ -69,10 +63,10 @@ model_collect = {
 model_class = {"BiRefNet-v2-onnx":"BiRefNet",
                "Depth-Anything-2-Onnx":"Depth-Anything",
                "dwpose-onnx":"dwpose",
+               "yolo-nas-pose-onnx" :"yolo-nas-pose",
                "facerestore-onnx":"facerestore",
                "rife-onnx":"rife",
                "Upscaler-Onnx":"upscaler"}
-
 
 CATEGORY_NAME = "TensoRT/plug-in"
 
@@ -95,7 +89,6 @@ class building_tensorrt_engine:
 
         return {
             "required": {
-                "select_class":(model_class_name,{"default": model_class_name[0],}),
                 "select_model": (all_model_name,{"default": all_model_name[0],}),
                 "force_building": ("BOOLEAN",{"default": False}),
                 "use_fp16": ("BOOLEAN",{"default": True}),
@@ -103,16 +96,16 @@ class building_tensorrt_engine:
             }
         }
 
-    RETURN_TYPES = ("trt_model",)
+    RETURN_TYPES = ("STRING",)
     OUTPUT_NODE = True
     FUNCTION = "building"
     CATEGORY = CATEGORY_NAME
-    def building(self,select_class,select_model,force_building,use_fp16,MirrorDownload):
+    def building(self,select_model,force_building,use_fp16,MirrorDownload):
         # 准备路径和文件字符串
         onnx_name = os.path.basename(select_model)
         trt_name = os.path.splitext(onnx_name)[0] + ".engine"
-        new_path = os.path.join(folder_paths.models_dir,"tensorrt",model_class[select_class])
-        if not os.path.isdir(new_path): os.mkdir(new_path) #创建
+        new_path = os.path.join(folder_paths.models_dir,"tensorrt",model_class[select_model.split("/")[0]])
+        if not os.path.isdir(new_path): os.mkdir(new_path) #创建输出路径
         trt_path = os.path.join(new_path,trt_name)
         onnx_path = os.path.join(folder_paths.models_dir,"tensorrt/TensorRT-ONNX-collect",select_model)
         
@@ -120,23 +113,31 @@ class building_tensorrt_engine:
         if not os.path.isfile(trt_path):
             # 若本地没有模型则下载
             if not os.path.isfile(onnx_path):
+                print(f"Download link:{onnx_path}")
                 from huggingface_hub import hf_hub_download
-                if MirrorDownload: os.system("export HF_ENDPOINT='https://hf-mirror.com'")
+                if MirrorDownload: 
+                    os.system("export HF_ENDPOINT='https://hf-mirror.com'")
                 hf_hub_download(repo_id= "EmmaJohnson311/TensorRT-ONNX-collect",
                                 filename = select_model,
                                 local_dir = onnx_path
                                 )
-
+                
+            print(f"onnx local path:{onnx_path}")
             # 开始转换
-            if select_model == "rife-onnx": model = self.building_4(onnx_path, trt_path, use_fp16)
-            elif select_model == "BiRefNet-v2-onnx": model = self.building_RGB(onnx_path, trt_path)
-            else : model = self.building_A(onnx_path, trt_path, use_fp16)
+            try:
+                if select_model == "rife-onnx": model = self.building_4(onnx_path, trt_path, use_fp16)
+                elif select_model == "BiRefNet-v2-onnx": model = self.building_RGB(onnx_path, trt_path)
+                else : model = self.building_A(onnx_path, trt_path, use_fp16)
+                print(f"Conversion successful! The model is saved in:\n {trt_path}")
+            except:
+                print("Conversion failed !")
 
         # 删除后重新转换，暂时不用
         elif force_building:
             # os.remove(trt_path)
-            print(f"{trt_path}已存在，跳过转换")
+            print(f"{trt_path} \n Already exists, skip conversion !")
             pass
+
         return (None,)
         
     def building_A(self, onnx_path, trt_path, use_fp16):
@@ -215,150 +216,7 @@ class building_tensorrt_engine:
         return ret
 
 
-class load_BiRefNet2_General:
-    def model_name(self):
-        self.pretrained_weights = [
-        'zhengpeng7/BiRefNet',
-        'zhengpeng7/BiRefNet-portrait',
-        'zhengpeng7/BiRefNet-legacy', 
-        'zhengpeng7/BiRefNet-DIS5K-TR_TEs', 
-        'zhengpeng7/BiRefNet-DIS5K',
-        'zhengpeng7/BiRefNet-HRSOD',
-        'zhengpeng7/BiRefNet-COD',
-        'zhengpeng7/BiRefNet_lite',     # Modify the `bb` in `config.py` to `swin_v1_tiny`.
-        ]
-        # https://objects.githubusercontent.com/github-production-release-asset-2e65be/525717745/81693dcf-8d42-4ef6-8dba-1f18f87de174?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=releaseassetproduction%2F20241014%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241014T003944Z&X-Amz-Expires=300&X-Amz-Signature=ec867061341cf6498cf5740c36f49da22d4d3d541da48d6e82c7bce0f3b63eaf&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3DBiRefNet-COD-epoch_125.pth&response-content-type=application%2Foctet-stream
-
-    @classmethod
-    def INPUT_TYPES(cls):
-        local_models= folder_paths.get_filename_list("BiRefNet"),
-        if isinstance(local_models,tuple):
-            local_models = list(local_models[0])
-        local_models.append(os.listdir(os.path.join(folder_paths.models_dir,"tensorrt/BiRefNet")))
-        return {
-            "required": {
-                "birefnet_model": (local_models,{"default": local_models[0],}),
-            }
-        }
-
-    RETURN_TYPES = ("BRNMODEL",)
-    RETURN_NAMES = ("birefnet",)
-    FUNCTION = "load_model"
-    CATEGORY = CATEGORY_NAME
-  
-    def load_model(self,birefnet_model):
-        model_path = folder_paths.get_full_path("BiRefNet", birefnet_model)
-        if not os.path.isfile(model_path): 
-            model_path = os.path.join(folder_paths.models_dir,"tensorrt/BiRefNet",birefnet_model)
-        print(f"load model: {model_path}")
-
-        if birefnet_model.endswith('.onnx'):
-                import onnxruntime
-                providers = ['CPUExecutionProvider'] if device == 'cpu' else ['CUDAExecutionProvider']
-                #model_path = folder_paths.get_full_path("BiRefNet", birefnet_model)
-                onnx_session = onnxruntime.InferenceSession(
-                    model_path,
-                    providers=providers
-                )
-                return (('onnx',onnx_session),),
-        elif birefnet_model.endswith('.engine') or birefnet_model.endswith('.trt') or birefnet_model.endswith('.plan'):
-            #model_path = folder_paths.get_full_path("BiRefNet", birefnet_model)
-            import tensorrt as trt
-            # 创建logger：日志记录器
-            logger = trt.Logger(trt.Logger.WARNING)
-            # 创建runtime并反序列化生成engine
-            with open(model_path ,'rb') as f, trt.Runtime(logger) as runtime:
-                engine = runtime.deserialize_cuda_engine(f.read())
-            return (('tensorrt',engine),)
-        else :
-            raise TypeError("Only supports  .onnx  .engine  .trt  .plan")
-
-class BiRefNet2_tensort:
-    def __init__(self):
-        pass
-
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "birefnet": ("BRNMODEL",),
-                "image": ("IMAGE",),
-                "reversal_mask": ("BOOLEAN",{"default":False})
-            }
-        }
-
-    RETURN_TYPES = ("MASK", )
-    RETURN_NAMES = ("mask", )
-    FUNCTION = "remove_background"
-    CATEGORY = CATEGORY_NAME
-  
-    def remove_background(self, birefnet, image,reversal_mask):
-        net_type, net = birefnet
-        processed_masks = []
-
-        transform_image = transforms.Compose([
-                transforms.Resize((1024, 1024)),
-                transforms.ToTensor(),
-                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-            ])
-
-        for image in image:
-            orig_image = tensor2pil(image)
-            w,h = orig_image.size
-            image = self.resize_image(orig_image)
-            im_tensor = transform_image(image).unsqueeze(0)
-            im_tensor=im_tensor.to(device)
-            if net_type=='onnx':
-                input_name = net.get_inputs()[0].name
-                input_images_numpy = tensor2np(im_tensor)
-                result = torch.tensor(
-                    net.run(None, {input_name: input_images_numpy if device == 'cpu' else input_images_numpy})[-1]
-                ).squeeze(0).sigmoid().cpu()
-            
-            elif net_type=='tensorrt':
-                from .models_BiRefNet import common
-                with net.create_execution_context() as context:
-                    image_data = np.expand_dims(transform_image(orig_image), axis=0).ravel()
-                    engine = net
-                    inputs, outputs, bindings, stream = common.allocate_buffers(engine)
-                    np.copyto(inputs[0].host, image_data)
-                    trt_outputs = common.do_inference(context, engine, bindings, inputs, outputs, stream)
-                   
-                    numpy_array = np.array(trt_outputs[-1].reshape((1, 1, 1024, 1024)))
-                    result = torch.from_numpy(numpy_array).sigmoid().cpu()
-                    common.free_buffers(inputs, outputs, stream)
-            else:
-                with torch.no_grad():
-                    result = net(im_tensor)[-1].sigmoid().cpu()
-                    
-                    
-            result = torch.squeeze(F.interpolate(result, size=(h,w)))
-            ma = torch.max(result)
-            mi = torch.min(result)
-            result = (result-mi)/(ma-mi)
-            result = torch.cat(result, dim=0)
-            processed_masks.append(result)
-
-        new_masks = torch.cat(processed_masks, dim=0)
-        if reversal_mask : new_masks = 1 - new_masks
-        return (new_masks,)
-    
-    def resize_image(self,image):
-        image = image.convert('RGB')
-        model_input_size = (1024, 1024)
-        image = image.resize(model_input_size, Image.BILINEAR)
-        return image
-    
 
 NODE_CLASS_MAPPINGS = {
     "building_tensorrt_engine":building_tensorrt_engine,
-    "load_BiRefNet2_General": load_BiRefNet2_General,
-    'BiRefNet2_tensort':BiRefNet2_tensort
-}
-
-# A dictionary that contains the friendly/humanly readable titles for the nodes
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "building_tensorrt_engine":"building tensorrt engine",
-    "load_BiRefNet2_General": "load BiRefNet2 General",
-    "BiRefNet2_tensort": "BiRefNet2 tensort",
 }
