@@ -60,7 +60,42 @@ model_collect = {
                   "Upscaler-Onnx/RealESRGAN_x4.onnx",],
 }
 
-model_SHA256 = {}
+model_SHA256 = {
+                'BiRefNet-v2-onnx/BiRefNet_lite-general-2K-epoch_232.onnx': "", 
+                'BiRefNet-v2-onnx/BiRefNet-COD-epoch_125.onnx': "", 
+                'BiRefNet-v2-onnx/BiRefNet-DIS-epoch_590.onnx': "", 
+                'BiRefNet-v2-onnx/BiRefNet-general-bb_swin_v1_tiny-epoch_232.onnx': "", 
+                'BiRefNet-v2-onnx/BiRefNet-general-epoch_244.onnx': "", 
+                'BiRefNet-v2-onnx/BiRefNet-general-resolution_512x512-fp16-epoch_216.onnx': "", 
+                'BiRefNet-v2-onnx/BiRefNet-HRSOD_DHU-epoch_115.onnx': "", 
+                'BiRefNet-v2-onnx/BiRefNet-massive-TR_DIS5K_TR_TEs-epoch_420.onnx': "", 
+                'BiRefNet-v2-onnx/BiRefNet-matting-epoch_100.onnx': "", 
+                'BiRefNet-v2-onnx/BiRefNet-portrait-epoch_150.onnx': "", 
+                'Depth-Anything-2-Onnx/depth_anything_v2_vitb.onnx': "", 
+                'Depth-Anything-2-Onnx/depth_anything_v2_vitl.onnx': "", 
+                'Depth-Anything-2-Onnx/depth_anything_v2_vits.onnx': "", 
+                'depth-pro-onnx/depth_pro.onnx': "", 
+                'dwpose-onnx/yolox_l.onnx': "7860ae79de6c89a3c1eb72ae9a2756c0ccfbe04b7791bb5880afabd97855a411", 
+                'dwpose-onnx/dw-ll_ucoco_384.onnx': "724f4ff2439ed61afb86fb8a1951ec39c6220682803b4a8bd4f598cd913b1843", 
+                'yolo-nas-pose-onnx/yolox_l_dynamic_batch_opset_17_sim.onnx': "", 
+                'yolo-nas-pose-onnx/yolo_nas_pose_l_0.1.onnx': "", 
+                'yolo-nas-pose-onnx/yolo_nas_pose_l_0.2.onnx': "", 
+                'yolo-nas-pose-onnx/yolo_nas_pose_l_0.5.onnx': "", 
+                'yolo-nas-pose-onnx/yolo_nas_pose_l_0.8.onnx': "", 
+                'yolo-nas-pose-onnx/yolo_nas_pose_l_0.35.onnx': "", 
+                'facerestore-onnx/codeformer.onnx': "", 
+                'facerestore-onnx/gfqgan.onnx': "", 
+                'rife-onnx/rife47_ensemble_True_scale_1_sim.onnx': "", 
+                'rife-onnx/rife48_ensemble_True_scale_1_sim.onnx': "", 
+                'rife-onnx/rife49_ensemble_True_scale_1_sim.onnx': "", 
+                'Upscaler-Onnx/4x_foolhardy_Remacri.onnx': "", 
+                'Upscaler-Onnx/4x_NMKD-Siax_200k.onnx': "", 
+                'Upscaler-Onnx/4x_RealisticRescaler_100000_G.onnx': "", 
+                'Upscaler-Onnx/4x-AnimeSharp.onnx': "", 
+                'Upscaler-Onnx/4x-UltraSharp.onnx': "", 
+                'Upscaler-Onnx/4x-WTP-UDS-Esrgan.onnx': "", 
+                'Upscaler-Onnx/RealESRGAN_x4.onnx': ""
+                }
 
 model_class = {"BiRefNet-v2-onnx":"BiRefNet",
                "Depth-Anything-2-Onnx":"Depth-Anything",
@@ -69,6 +104,8 @@ model_class = {"BiRefNet-v2-onnx":"BiRefNet",
                "facerestore-onnx":"facerestore",
                "rife-onnx":"rife",
                "Upscaler-Onnx":"upscaler"}
+
+download_path_onnx = os.path.join(folder_paths.models_dir,"tensorrt/TensorRT-ONNX-collect")
 
 CATEGORY_NAME = "TensoRT/plug-in"
 
@@ -109,7 +146,7 @@ class building_tensorrt_engine:
         new_path = os.path.join(folder_paths.models_dir,"tensorrt",model_class[select_model.split("/")[0]])
         if not os.path.isdir(new_path): os.mkdir(new_path) #创建输出路径
         trt_path = os.path.join(new_path,trt_name)
-        onnx_path = os.path.join(folder_paths.models_dir,"tensorrt/TensorRT-ONNX-collect",select_model)
+        onnx_path = os.path.join(download_path_onnx,select_model)
         
         model = None
         if not os.path.isfile(trt_path):
@@ -125,7 +162,7 @@ class building_tensorrt_engine:
                     print(f"to:{onnx_path}")
                 hf_hub_download(repo_id= "EmmaJohnson311/TensorRT-ONNX-collect",
                                 filename = select_model,
-                                local_dir = onnx_path
+                                local_dir = download_path_onnx
                                 )
                 
             print("Download completed, Start Conversion...")
