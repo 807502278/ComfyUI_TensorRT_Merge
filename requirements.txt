@@ -3,6 +3,7 @@ onnx
 kornia
 polygraphy
 tensorrt
-# tensorrt==10.5.0
 cuda-python
 huggingface_hub
+# pip install tensorrt_cu12_libs==10.0.1 tensorrt_cu12_bindings==10.0.1 tensorrt==10.0.1 --extra-index-url https://pypi.nvidia.com
+# https://github.com/NVIDIA/TensorRT/issues/3838

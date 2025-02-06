@@ -20,7 +20,7 @@ trt_path_dict = {}
 for k,v in model_class.items():
     trt_path = os.path.join(folder_paths.models_dir, "tensorrt", v)
     if not os.path.isdir(trt_path):
-        os.mkdir(trt_path)
+        os.makedirs(trt_path)
     trt_path_dict[v] = trt_path
 
 class load_dwpos_model:
