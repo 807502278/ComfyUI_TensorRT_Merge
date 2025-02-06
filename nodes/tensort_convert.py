@@ -60,6 +60,8 @@ model_collect = {
                   "Upscaler-Onnx/RealESRGAN_x4.onnx",],
 }
 
+model_SHA256 = {}
+
 model_class = {"BiRefNet-v2-onnx":"BiRefNet",
                "Depth-Anything-2-Onnx":"Depth-Anything",
                "dwpose-onnx":"dwpose",
@@ -113,16 +115,20 @@ class building_tensorrt_engine:
         if not os.path.isfile(trt_path):
             # 若本地没有模型则下载
             if not os.path.isfile(onnx_path):
-                print(f"Download link:{onnx_path}")
                 from huggingface_hub import hf_hub_download
                 if MirrorDownload: 
                     os.system("export HF_ENDPOINT='https://hf-mirror.com'")
+                    print(f"Download link:https://hf-mirror.com/EmmaJohnson311/TensorRT-ONNX-collect/{select_model}")
+                    print(f"to:{onnx_path}")
+                else:
+                    print(f"Download link:https://huggingface.co/EmmaJohnson311/TensorRT-ONNX-collect/{select_model}")
+                    print(f"to:{onnx_path}")
                 hf_hub_download(repo_id= "EmmaJohnson311/TensorRT-ONNX-collect",
                                 filename = select_model,
                                 local_dir = onnx_path
                                 )
                 
-            print(f"onnx local path:{onnx_path}")
+            print("Download completed, Start Conversion...")
             # 开始转换
             try:
                 if select_model == "rife-onnx": model = self.building_4(onnx_path, trt_path, use_fp16)
