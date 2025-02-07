@@ -152,18 +152,18 @@ class building_tensorrt_engine:
         if not os.path.isfile(trt_path):
             # 若本地没有模型则下载
             if not os.path.isfile(onnx_path):
-                from huggingface_hub import hf_hub_download
                 if MirrorDownload: 
                     os.system("export HF_ENDPOINT='https://hf-mirror.com'")
                     print(f"Download link:https://hf-mirror.com/EmmaJohnson311/TensorRT-ONNX-collect/{select_model}")
-                    print(f"to:{onnx_path}")
                 else:
                     print(f"Download link:https://huggingface.co/EmmaJohnson311/TensorRT-ONNX-collect/{select_model}")
-                    print(f"to:{onnx_path}")
+                print(f"to:{onnx_path}")
+
+                from huggingface_hub import hf_hub_download
                 hf_hub_download(repo_id= "EmmaJohnson311/TensorRT-ONNX-collect",
                                 filename = select_model,
-                                local_dir = download_path_onnx
-                                )
+                                local_dir = download_path_onnx,
+                                local_files_only=False)
                 
             print("Download completed, Start Conversion...")
             # 开始转换

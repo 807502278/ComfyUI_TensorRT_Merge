@@ -16,6 +16,7 @@ torch.set_float32_matmul_precision(["high", "highest"][0])
 
 CATEGORY_NAME = "TensoRT/plug-in"
 model_Warning = "* Please convert the model first ! *"
+
 trt_path_dict = {}
 for k,v in model_class.items():
     trt_path = os.path.join(folder_paths.models_dir, "tensorrt", v)
@@ -40,8 +41,8 @@ class load_dwpos_model:
     FUNCTION = "main"
     CATEGORY = CATEGORY_NAME
     def main(self,yolox_l,ll_ucoco_384):
-        yolox_l = os.path.join(self.__class__.path,yolox_l)
-        ll_ucoco_384 = os.path.join(self.__class__.path,ll_ucoco_384)
+        yolox_l = os.path.join(self.__class__.dwpos_path,yolox_l)
+        ll_ucoco_384 = os.path.join(self.__class__.dwpos_path,ll_ucoco_384)
         dwpose = DWposeDetector(yolox_l,ll_ucoco_384)
         return (dwpose,)
 
