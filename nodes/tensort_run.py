@@ -94,11 +94,11 @@ class load_DepthAnything_Tensorrt:
             }
         }
     RETURN_TYPES = ("depth_anything_model",)
-    FUNCTION = "run"
+    FUNCTION = "load"
     CATEGORY = CATEGORY_NAME
 
-    def run(self, depth_anything):
-        model = Engine(os.path.join(self.__class__.tensorrt_depth_path,depth_anything))
+    def load(self, depth_anything_model):
+        model = Engine(os.path.join(self.__class__.tensorrt_depth_path,depth_anything_model))
         model.engine.load()
         model.engine.activate()
         model.engine.allocate_buffers()
