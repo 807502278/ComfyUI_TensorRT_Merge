@@ -3,12 +3,14 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from torchvision import transforms
+import cv2
 
 import folder_paths
 from comfy.utils import ProgressBar
 
 from .dwpose import DWposeDetector
 from .tensort_convert import model_class
+from .depth_anything.utilities import Engine
 
 folder_paths.add_model_folder_path("BiRefNet",os.path.join(folder_paths.models_dir, "BiRefNet"))
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -24,7 +26,7 @@ for k,v in model_class.items():
         os.makedirs(trt_path)
     trt_path_dict[v] = trt_path
 
-class load_dwpos_model:
+class load_Dwpos_Tensorrt:
     dwpos_path = os.path.join(folder_paths.models_dir, "tensorrt", "dwpose")
     @classmethod
     def INPUT_TYPES(s):
@@ -77,6 +79,65 @@ class Dwpose_Tensorrt:
 
         pose_frames_np = np.array(pose_frames).astype(np.float32) / 255
         return (torch.from_numpy(pose_frames_np),)
+
+
+class load_DepthAnything_Tensorrt:
+    tensorrt_depth_path = os.path.join(folder_paths.models_dir,"tensorrt", "Depth-Anything")
+    @classmethod
+    def INPUT_TYPES(s):
+        model_list = os.listdir(s.tensorrt_depth_path)
+        if len(model_list) == 0:
+            model_list = [model_Warning]
+        return {
+            "required": {
+                "depth_anything_model": (model_list,{"default":model_list[0]}),
+            }
+        }
+    RETURN_TYPES = ("depth_anything_model",)
+    FUNCTION = "run"
+    CATEGORY = CATEGORY_NAME
+
+    def run(self, depth_anything):
+        model = Engine(os.path.join(self.__class__.tensorrt_depth_path,depth_anything))
+        model.engine.load()
+        model.engine.activate()
+        model.engine.allocate_buffers()
+        return (model,)
+
+class DepthAnything_Tensorrt:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "images": ("IMAGE",),
+                "depth_anything_model": ("depth_anything_model",),
+            }
+        }
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "run"
+    CATEGORY = CATEGORY_NAME
+    def run(self, images, depth_anything_model):
+
+        cudaStream = torch.cuda.current_stream().cuda_stream
+        pbar = ProgressBar(images.shape[0])
+        images = images.permute(0, 3, 1, 2)
+        images_resized = F.interpolate(images, size=(518,518), mode='bilinear', align_corners=False)
+        images_list = list(torch.split(images_resized, split_size_or_sections=1))   
+        depth_frames = []   
+        for img in images_list:
+            result = depth_anything_model.infer({"input": img},cudaStream)
+            depth = result['output']    
+            # Process the depth output
+            depth = np.reshape(depth.cpu().numpy(), (518,518))
+            depth = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
+            depth = depth.astype(np.uint8)
+            depth = cv2.resize(depth, (images.shape[3], images.shape[2]))
+            depth = cv2.cvtColor(depth, cv2.COLOR_RGB2BGR)  
+            depth_frames.append(depth)
+            pbar.update(1)
+        depth_frames_np = np.array(depth_frames).astype(np.float32) / 255.0
+        return (torch.from_numpy(depth_frames_np),)
+
 
 
 class load_BiRefNet2_General:
@@ -215,8 +276,11 @@ class BiRefNet2_tensort:
     
 
 NODE_CLASS_MAPPINGS = {
-    "load_dwpos_model": load_dwpos_model,
+    "load_Dwpos_Tensorrt": load_Dwpos_Tensorrt,
     "Dwpose_Tensorrt": Dwpose_Tensorrt,
-    "load_BiRefNet2_General":load_BiRefNet2_General,
-    "BiRefNet2_tensort":BiRefNet2_tensort,
+    "load_DepthAnything_Tensorrt":load_DepthAnything_Tensorrt,
+    "DepthAnything_Tensorrt":DepthAnything_Tensorrt,
+
+    #"load_BiRefNet2_General":load_BiRefNet2_General,
+    #"BiRefNet2_tensort":BiRefNet2_tensort,
 }
