@@ -99,9 +99,9 @@ class load_DepthAnything_Tensorrt:
 
     def load(self, depth_anything_model):
         model = Engine(os.path.join(self.__class__.tensorrt_depth_path,depth_anything_model))
-        model.engine.load()
-        model.engine.activate()
-        model.engine.allocate_buffers()
+        model.load()
+        model.activate()
+        model.allocate_buffers()
         return (model,)
 
 class DepthAnything_Tensorrt:
