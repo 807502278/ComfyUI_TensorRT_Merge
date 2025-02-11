@@ -113,7 +113,6 @@ CATEGORY_NAME = "TensoRT/plug-in"
 class building_tensorrt_engine:
     @classmethod
     def INPUT_TYPES(cls):
-        model_class_name = list(model_collect.keys())
         all_model_name = []
         for i in model_collect.values():
             all_model_name = all_model_name + i
@@ -181,7 +180,7 @@ class building_tensorrt_engine:
             print(f"{trt_path} \n Already exists, skip conversion !")
             pass
 
-        return (None,)
+        return (trt_path,)
         
     def building_A(self, onnx_path, trt_path, use_fp16):
         engine = Engine(trt_path)
