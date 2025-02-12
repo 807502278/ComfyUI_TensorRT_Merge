@@ -8,9 +8,7 @@ import cv2
 import folder_paths
 from comfy.utils import ProgressBar
 
-from .dwpose import DWposeDetector
-from .tensort_convert import model_class
-from .depth_anything.utilities import Engine
+
 
 folder_paths.add_model_folder_path("BiRefNet",os.path.join(folder_paths.models_dir, "BiRefNet"))
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -19,12 +17,17 @@ torch.set_float32_matmul_precision(["high", "highest"][0])
 CATEGORY_NAME = "TensoRT/plug-in"
 model_Warning = "* Please convert the model first ! *"
 
+from .tensort_convert import model_class
 trt_path_dict = {}
 for k,v in model_class.items():
     trt_path = os.path.join(folder_paths.models_dir, "tensorrt", v)
     if not os.path.isdir(trt_path):
         os.makedirs(trt_path)
     trt_path_dict[v] = trt_path
+
+
+
+from .dwpose import DWposeDetector
 
 class load_Dwpos_Tensorrt:
     dwpos_path = os.path.join(folder_paths.models_dir, "tensorrt", "dwpose")
@@ -80,6 +83,9 @@ class Dwpose_Tensorrt:
         pose_frames_np = np.array(pose_frames).astype(np.float32) / 255
         return (torch.from_numpy(pose_frames_np),)
 
+
+
+from .depth_anything.utilities import Engine
 
 class load_DepthAnything_Tensorrt:
     tensorrt_depth_path = os.path.join(folder_paths.models_dir,"tensorrt", "Depth-Anything")
@@ -140,26 +146,28 @@ class DepthAnything_Tensorrt:
 
 
 
-class load_BiRefNet2_General:
+#class load_Rife_Tensorrt: ...
+#class Rife_Tensorrt: ...
+#
+#class load_Upscaler_Tensorrt: ...
+#class Upscaler_Tensorrt: ...
+#
+#class load_Facerestore_Tensorrt: ...
+#class Facerestore_Tensorrt: ...
+#
+#class load_YoloNasPose_Tensorrt: ...
+#class YoloNasPose_Tensorrt: ...
+#
+#class load_DepthPro_Tensorrt: ...
+#class DepthPro_Tensorrt: ...
 
-    def model_name(self):
-        self.pretrained_weights = [
-        'zhengpeng7/BiRefNet',
-        'zhengpeng7/BiRefNet-portrait',
-        'zhengpeng7/BiRefNet-legacy', 
-        'zhengpeng7/BiRefNet-DIS5K-TR_TEs', 
-        'zhengpeng7/BiRefNet-DIS5K',
-        'zhengpeng7/BiRefNet-HRSOD',
-        'zhengpeng7/BiRefNet-COD',
-        'zhengpeng7/BiRefNet_lite',     # Modify the `bb` in `config.py` to `swin_v1_tiny`.
-        ]
-        # https://objects.githubusercontent.com/github-production-release-asset-2e65be/525717745/81693dcf-8d42-4ef6-8dba-1f18f87de174?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=releaseassetproduction%2F20241014%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241014T003944Z&X-Amz-Expires=300&X-Amz-Signature=ec867061341cf6498cf5740c36f49da22d4d3d541da48d6e82c7bce0f3b63eaf&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3DBiRefNet-COD-epoch_125.pth&response-content-type=application%2Foctet-stream
 
+class load_BiRefNet2_tensort:
     @classmethod
     def INPUT_TYPES(cls):
         local_models = os.listdir(trt_path_dict["BiRefNet"])
         if len(local_models) == 0:
-            local_models = model_Warning
+            local_models = [model_Warning]
         return {
             "required": {
                 "birefnet_model": (local_models,{"default": local_models[0],}),
@@ -281,6 +289,6 @@ NODE_CLASS_MAPPINGS = {
     "load_DepthAnything_Tensorrt":load_DepthAnything_Tensorrt,
     "DepthAnything_Tensorrt":DepthAnything_Tensorrt,
 
-    #"load_BiRefNet2_General":load_BiRefNet2_General,
-    #"BiRefNet2_tensort":BiRefNet2_tensort,
+    "load_BiRefNet2_tensort":load_BiRefNet2_tensort,
+    "BiRefNet2_tensort":BiRefNet2_tensort,
 }

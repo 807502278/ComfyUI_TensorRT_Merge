@@ -5,5 +5,10 @@ polygraphy
 tensorrt
 cuda-python
 huggingface_hub
+einops
+colored
+opencv-python
+matplotlib
+torchvision
 # pip install tensorrt_cu12_libs==10.0.1 tensorrt_cu12_bindings==10.0.1 tensorrt==10.0.1 --extra-index-url https://pypi.nvidia.com
 # https://github.com/NVIDIA/TensorRT/issues/3838

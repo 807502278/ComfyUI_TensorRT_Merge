@@ -1,55 +1,60 @@
 {
     "onnx_data":{
         "BiRefNet-v2-onnx":{
-                    "BiRefNet-v2-onnx/BiRefNet_lite-general-2K-epoch_232.onnx":{"SHA256":"","size":"","other_data":""},
-                    "BiRefNet-v2-onnx/BiRefNet-COD-epoch_125.onnx":{"SHA256":"","size":"","other_data":""},
-                    "BiRefNet-v2-onnx/BiRefNet-DIS-epoch_590.onnx":{"SHA256":"","size":"","other_data":""},
-                    "BiRefNet-v2-onnx/BiRefNet-general-bb_swin_v1_tiny-epoch_232.onnx":{"SHA256":"","size":"","other_data":""},
-                    "BiRefNet-v2-onnx/BiRefNet-general-epoch_244.onnx":{"SHA256":"","size":"","other_data":""},
-                    "BiRefNet-v2-onnx/BiRefNet-general-resolution_512x512-fp16-epoch_216.onnx":{"SHA256":"","size":"","other_data":""},
-                    "BiRefNet-v2-onnx/BiRefNet-HRSOD_DHU-epoch_115.onnx":{"SHA256":"","size":"","other_data":""},
-                    "BiRefNet-v2-onnx/BiRefNet-massive-TR_DIS5K_TR_TEs-epoch_420.onnx":{"SHA256":"","size":"","other_data":""},
-                    "BiRefNet-v2-onnx/BiRefNet-matting-epoch_100.onnx":{"SHA256":"","size":"","other_data":""},
-                    "BiRefNet-v2-onnx/BiRefNet-portrait-epoch_150.onnx":{"SHA256":"","size":"","other_data":""}},
+                    "BiRefNet-v2-onnx/BiRefNet_lite-general-2K-epoch_232.onnx":{"SHA256":"6003d2f758bdb4e4802a09e39167529bc2eef9288d5b8fa537331467cbc4759d","size":"","other_data":""},
+                    "BiRefNet-v2-onnx/BiRefNet-COD-epoch_125.onnx":{"SHA256":"91ec48f566db475cf6e4caa7e9cd997f352edfcc372372f437e2fbefc1557b13","size":"","other_data":""},
+                    "BiRefNet-v2-onnx/BiRefNet-DIS-epoch_590.onnx":{"SHA256":"6470117bac6f8d82a3f62921056f52d0f5c4d36d1d832096331d5ea38a03acb5","size":"","other_data":""},
+                    "BiRefNet-v2-onnx/BiRefNet-general-bb_swin_v1_tiny-epoch_232.onnx":{"SHA256":"5600024376f572a557870a5eb0afb1e5961636bef4e1e22132025467d0f03333","size":"","other_data":""},
+                    "BiRefNet-v2-onnx/BiRefNet-general-epoch_244.onnx":{"SHA256":"58f621f00f5d756097615970a88a791584600dcf7c45b18a0a6267535a1ebd3c","size":"","other_data":""},
+                    "BiRefNet-v2-onnx/BiRefNet-general-resolution_512x512-fp16-epoch_216.onnx":{"SHA256":"18b64a270d3abe7d36e665500c3f24136bcaf7616771b4cb21c6e8c57fec7237","size":"","other_data":""},
+                    "BiRefNet-v2-onnx/BiRefNet-HRSOD_DHU-epoch_115.onnx":{"SHA256":"4f5837663194fb88f603b76782eae05a3c29f5749872ca1bfb636bd26e7f6bfc","size":"","other_data":""},
+                    "BiRefNet-v2-onnx/BiRefNet-massive-TR_DIS5K_TR_TEs-epoch_420.onnx":{"SHA256":"a94814cac438a31f95287811882628644a04b22d313ef3071d2ba904b5f627b8","size":"","other_data":""},
+                    "BiRefNet-v2-onnx/BiRefNet-matting-epoch_100.onnx":{"SHA256":"6065d27c615ea27308f5b88598dd8db116eb07436c7a323ca40d13b2866c309e","size":"","other_data":""},
+                    "BiRefNet-v2-onnx/BiRefNet-portrait-epoch_150.onnx":{"SHA256":"1ba1c8ff5a7bbfadc8d8d13fb11d7be793f91f23d9d466549e37a854f6668f99","size":"","other_data":""}
+                    },
         "Depth-Anything-2-Onnx":{
-                    "Depth-Anything-2-Onnx/depth_anything_v2_vitb.onnx":{"SHA256":"","size":"","other_data":""},
-                    "Depth-Anything-2-Onnx/depth_anything_v2_vitl.onnx":{"SHA256":"","size":"","other_data":""},
-                    "Depth-Anything-2-Onnx/depth_anything_v2_vits.onnx":{"SHA256":"","size":"","other_data":""},
-                    "depth-pro-onnx/depth_pro.onnx":{"SHA256":"","size":"","other_data":""}},
+                    "Depth-Anything-2-Onnx/depth_anything_v2_vitb.onnx":{"SHA256":"83c9029c09d03d05ee3259405a8e09d7ade7bd663f29f2b7b8c0b06f5f09e554","size":"","other_data":""},
+                    "Depth-Anything-2-Onnx/depth_anything_v2_vitl.onnx":{"SHA256":"a8779462763a10c7fbfa9700a948a9d3664f39424e8a7d78fc924f529f72a505","size":"","other_data":""},
+                    "Depth-Anything-2-Onnx/depth_anything_v2_vits.onnx":{"SHA256":"b47f3b67a5fadc18dec8cfae9954544182b79b57e8beedf6051a27cd73001c77","size":"","other_data":""}
+                    },
+        "depth-pro-onnx":{
+                    "depth-pro-onnx/depth_pro.onnx":{"SHA256":"b7ef2903001b7f1e58091626b57eb6b6e0924e6a530861db3538d7ae47018fd4","size":"","other_data":""}
+                    },
         "dwpose-onnx":{
-                    "dwpose-onnx/yolox_l.onnx":{"SHA256":"","size":"","other_data":""},
-                    "dwpose-onnx/dw-ll_ucoco_384.onnx":{"SHA256":"","size":"","other_data":""}},
+                    "dwpose-onnx/yolox_l.onnx":{"SHA256":"724f4ff2439ed61afb86fb8a1951ec39c6220682803b4a8bd4f598cd913b1843","size":"","other_data":""},
+                    "dwpose-onnx/dw-ll_ucoco_384.onnx":{"SHA256":"724f4ff2439ed61afb86fb8a1951ec39c6220682803b4a8bd4f598cd913b1843","size":"","other_data":""}
+                    },
         "yolo-nas-pose-onnx":{
-                    "yolo-nas-pose-onnx/yolox_l_dynamic_batch_opset_17_sim.onnx":{"SHA256":"","size":"","other_data":""},
-                    "yolo-nas-pose-onnx/yolo_nas_pose_l_0.1.onnx":{"SHA256":"","size":"","other_data":""},
-                    "yolo-nas-pose-onnx/yolo_nas_pose_l_0.2.onnx":{"SHA256":"","size":"","other_data":""},
-                    "yolo-nas-pose-onnx/yolo_nas_pose_l_0.5.onnx":{"SHA256":"","size":"","other_data":""},
-                    "yolo-nas-pose-onnx/yolo_nas_pose_l_0.8.onnx":{"SHA256":"","size":"","other_data":""},
-                    "yolo-nas-pose-onnx/yolo_nas_pose_l_0.35.onnx":{"SHA256":"","size":"","other_data":""}},
+                    "yolo-nas-pose-onnx/yolox_l_dynamic_batch_opset_17_sim.onnx":{"SHA256":"af1a4b2720eab965ada4b95b679f0d7f0461e6f56136b060ec3627cc99359b1c","size":"","other_data":""},
+                    "yolo-nas-pose-onnx/yolo_nas_pose_l_0.1.onnx":{"SHA256":"d5a3de83e25a543f1ae297afc572cbc2d9e10cc9b47036f6bc8a24d71e3a9cef","size":"","other_data":""},
+                    "yolo-nas-pose-onnx/yolo_nas_pose_l_0.2.onnx":{"SHA256":"0f7919ff224f8733a5967782d22d3723c4bb997e22fae0ce8cb9f53548952e63","size":"","other_data":""},
+                    "yolo-nas-pose-onnx/yolo_nas_pose_l_0.5.onnx":{"SHA256":"3e9c447e8f0902f8a615771bf05b8aa588bd653f10f20de40fbbc4e99d956c32","size":"","other_data":""},
+                    "yolo-nas-pose-onnx/yolo_nas_pose_l_0.8.onnx":{"SHA256":"0d6c5b70307254270baabbb5490546794d6a52606175017bd5a6e97c3af48e9f","size":"","other_data":""},
+                    "yolo-nas-pose-onnx/yolo_nas_pose_l_0.35.onnx":{"SHA256":"6bb993dbaddc483f703b9e51ccf4ebea2cfdb5f621198ee37f644511bd2e5630","size":"","other_data":""}
+                    },
         "facerestore-onnx":{
-                    "facerestore-onnx/codeformer.onnx":{"SHA256":"","size":"","other_data":""},
-                    "facerestore-onnx/gfqgan.onnx":{"SHA256":"","size":"","other_data":""}},
+                    "facerestore-onnx/codeformer.onnx":{"SHA256":"94d96ea61122e2ffca09c0d895c84ff4d5e7dcab9d7dbf5f4dd9e553cf2e433a","size":"","other_data":""},
+                    "facerestore-onnx/gfqgan.onnx":{"SHA256":"df3f295c42be1b325c457c9fbff6442df6c4d611cfb292fdf51c57c0e5b2e424","size":"","other_data":""}},
         "rife-onnx":{
-                    "rife-onnx/rife47_ensemble_True_scale_1_sim.onnx":{"SHA256":"","size":"","other_data":""},
-                    "rife-onnx/rife48_ensemble_True_scale_1_sim.onnx":{"SHA256":"","size":"","other_data":""},
-                    "rife-onnx/rife49_ensemble_True_scale_1_sim.onnx":{"SHA256":"","size":"","other_data":""}},
+                    "rife-onnx/rife47_ensemble_True_scale_1_sim.onnx":{"SHA256":"0a3a52814d07d919b8336c6b66677baaeeec517bdd4ac4f6852d4bf2680ebb5a","size":"","other_data":""},
+                    "rife-onnx/rife48_ensemble_True_scale_1_sim.onnx":{"SHA256":"f8e26561a89fe7c49796edd52bac6199c9206ee7ac368d0e2d2e183a18b853dd","size":"","other_data":""},
+                    "rife-onnx/rife49_ensemble_True_scale_1_sim.onnx":{"SHA256":"76e4cef9ab42fa7dd4e8f6e4aba47462051e3faa969e4bca6479784fbab0ac6f","size":"","other_data":""}},
         "Upscaler-Onnx":{
-                    "Upscaler-Onnx/4x_foolhardy_Remacri.onnx":{"SHA256":"","size":"","other_data":""},
-                    "Upscaler-Onnx/4x_NMKD-Siax_200k.onnx":{"SHA256":"","size":"","other_data":""},
-                    "Upscaler-Onnx/4x_RealisticRescaler_100000_G.onnx":{"SHA256":"","size":"","other_data":""},
-                    "Upscaler-Onnx/4x-AnimeSharp.onnx":{"SHA256":"","size":"","other_data":""},
-                    "Upscaler-Onnx/4x-UltraSharp.onnx":{"SHA256":"","size":"","other_data":""},
-                    "Upscaler-Onnx/4x-WTP-UDS-Esrgan.onnx":{"SHA256":"","size":"","other_data":""},
-                    "Upscaler-Onnx/RealESRGAN_x4.onnx":{"SHA256":"","size":"","other_data":""}}
+                    "Upscaler-Onnx/4x_foolhardy_Remacri.onnx":{"SHA256":"6bb362a994e57a256347fb7e7d347d85f9ef7149665804a8e13bff5828b37f35","size":"","other_data":""},
+                    "Upscaler-Onnx/4x_NMKD-Siax_200k.onnx":{"SHA256":"0e090d7dba554acc00b2c8fdf0524b9b8acd52de5daada4aba7f5c4ec50dcd78","size":"","other_data":""},
+                    "Upscaler-Onnx/4x_RealisticRescaler_100000_G.onnx":{"SHA256":"51773d75391906f1886bc99ce603e0ac7a7cc89fb4a77419c4bd63e466339d9c","size":"","other_data":""},
+                    "Upscaler-Onnx/4x-AnimeSharp.onnx":{"SHA256":"e5cfa81397e3871655d307156f2aa5252c95f852939d3b8afa4f87c0a63695d6","size":"","other_data":""},
+                    "Upscaler-Onnx/4x-UltraSharp.onnx":{"SHA256":"3ff44b8696fd38221de0c39d448cdbcf10813e37eab12647ecfc507ab010fd82","size":"","other_data":""},
+                    "Upscaler-Onnx/4x-WTP-UDS-Esrgan.onnx":{"SHA256":"9219bc4e2299875096ca2d89be1ad6b6ea94b14920301c0b781a907518c33ede","size":"","other_data":""},
+                    "Upscaler-Onnx/RealESRGAN_x4.onnx":{"SHA256":"0419b536f5bdadaf984b0a3777307dd83e2487e7e13d65a68147b8443f021675","size":"","other_data":""}}
         },
-    "other_data":{
-        "trt_path":{
+    "trt_path":{
                 "BiRefNet-v2-onnx":"BiRefNet",
                 "yolo-nas-pose-onnx":"yolo-nas-pose",
                 "Depth-Anything-2-Onnx":"Depth-Anything",
                 "dwpose-onnx":"dwpose",
                 "facerestore-onnx":"facerestore",
                 "rife-onnx":"rife",
-                "Upscaler-Onnx":"upscaler"}
-    }
+                "Upscaler-Onnx":"upscaler"
+            }
 }

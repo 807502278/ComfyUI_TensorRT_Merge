@@ -1,0 +1,628 @@
+{
+  "last_node_id": 22,
+  "last_link_id": 11,
+  "nodes": [
+    {
+      "id": 6,
+      "type": "Dwpose_Tensorrt",
+      "pos": [
+        -1644.845947265625,
+        -2213.1953125
+      ],
+      "size": [
+        239.15707397460938,
+        126
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "dwpose",
+          "type": "dwpose_model",
+          "link": 2,
+          "label": "dwpose"
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 8,
+          "label": "images"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": null,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Dwpose_Tensorrt"
+      },
+      "widgets_values": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "id": 7,
+      "type": "load_Dwpos_Tensorrt",
+      "pos": [
+        -2097.450927734375,
+        -2166.615234375
+      ],
+      "size": [
+        396.26031494140625,
+        82
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "dwpose_model",
+          "type": "dwpose_model",
+          "links": [
+            2
+          ],
+          "slot_index": 0,
+          "label": "dwpose_model"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "load_Dwpos_Tensorrt"
+      },
+      "widgets_values": [
+        "* Please convert the model first ! *",
+        "* Please convert the model first ! *"
+      ]
+    },
+    {
+      "id": 9,
+      "type": "LoadImage",
+      "pos": [
+        -2551.052734375,
+        -2361.33203125
+      ],
+      "size": [
+        315,
+        314
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            8,
+            9,
+            10
+          ],
+          "label": "IMAGE",
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "label": "MASK"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "256x256-RGBA.png",
+        "image"
+      ]
+    },
+    {
+      "id": 12,
+      "type": "load_DepthAnything_Tensorrt",
+      "pos": [
+        -2055.121826171875,
+        -2339.483154296875
+      ],
+      "size": [
+        340.20001220703125,
+        58
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "depth_anything_model",
+          "type": "depth_anything_model",
+          "links": [
+            5
+          ],
+          "slot_index": 0,
+          "label": "depth_anything_model"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "load_DepthAnything_Tensorrt"
+      },
+      "widgets_values": [
+        "* Please convert the model first ! *"
+      ]
+    },
+    {
+      "id": 13,
+      "type": "DepthAnything_Tensorrt",
+      "pos": [
+        -1625.0462646484375,
+        -2343.87060546875
+      ],
+      "size": [
+        220,
+        46
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 9,
+          "label": "images"
+        },
+        {
+          "name": "depth_anything_model",
+          "type": "depth_anything_model",
+          "link": 5,
+          "label": "depth_anything_model"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": null,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DepthAnything_Tensorrt"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 14,
+      "type": "YoloNasPoseTensorrt",
+      "pos": [
+        -1696.4307861328125,
+        -2986.16357421875
+      ],
+      "size": [
+        315,
+        58
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": null,
+          "label": "images"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": null,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "YoloNasPoseTensorrt"
+      },
+      "widgets_values": [
+        null
+      ]
+    },
+    {
+      "id": 15,
+      "type": "FaceRestoreTensorrt",
+      "pos": [
+        -1696.4307861328125,
+        -2706.16357421875
+      ],
+      "size": [
+        315,
+        58
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": null,
+          "label": "images"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": null,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FaceRestoreTensorrt"
+      },
+      "widgets_values": [
+        null
+      ]
+    },
+    {
+      "id": 16,
+      "type": "UpscalerTensorrt",
+      "pos": [
+        -1696.4307861328125,
+        -2856.16357421875
+      ],
+      "size": [
+        315,
+        82
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": null,
+          "label": "images"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": null,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UpscalerTensorrt"
+      },
+      "widgets_values": [
+        null,
+        "none"
+      ]
+    },
+    {
+      "id": 17,
+      "type": "RifeTensorrt",
+      "pos": [
+        -1696.4307861328125,
+        -3226.16357421875
+      ],
+      "size": [
+        315,
+        154
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "frames",
+          "type": "IMAGE",
+          "link": null,
+          "label": "frames"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": null,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RifeTensorrt"
+      },
+      "widgets_values": [
+        null,
+        100,
+        2,
+        true,
+        false
+      ]
+    },
+    {
+      "id": 18,
+      "type": "BiRefNet2_tensort",
+      "pos": [
+        -1700,
+        -2510
+      ],
+      "size": [
+        315,
+        78
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "birefnet",
+          "type": "BRNMODEL",
+          "link": 7,
+          "label": "birefnet"
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 10,
+          "label": "image"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": null,
+          "label": "mask"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BiRefNet2_tensort"
+      },
+      "widgets_values": [
+        false
+      ]
+    },
+    {
+      "id": 22,
+      "type": "load_BiRefNet2_tensort",
+      "pos": [
+        -2150,
+        -2520
+      ],
+      "size": [
+        378.57562255859375,
+        58
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "birefnet",
+          "type": "BRNMODEL",
+          "links": [
+            7
+          ],
+          "label": "birefnet",
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "load_BiRefNet2_tensort"
+      },
+      "widgets_values": [
+        "* Please convert the model first ! *"
+      ]
+    }
+  ],
+  "links": [
+    [
+      2,
+      7,
+      0,
+      6,
+      0,
+      "dwpose_model"
+    ],
+    [
+      5,
+      12,
+      0,
+      13,
+      1,
+      "depth_anything_model"
+    ],
+    [
+      7,
+      22,
+      0,
+      18,
+      0,
+      "BRNMODEL"
+    ],
+    [
+      8,
+      9,
+      0,
+      6,
+      1,
+      "IMAGE"
+    ],
+    [
+      9,
+      9,
+      0,
+      13,
+      0,
+      "IMAGE"
+    ],
+    [
+      10,
+      9,
+      0,
+      18,
+      1,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.630394086312854,
+      "offset": [
+        3574.219415284509,
+        3502.3330981376243
+      ]
+    },
+    "ue_links": [],
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0
+  },
+  "version": 0.4,
+  "api_prompt": {
+    "6": {
+      "inputs": {
+        "show_face": true,
+        "show_hands": true,
+        "show_body": true,
+        "dwpose": [
+          "7",
+          0
+        ],
+        "images": [
+          "9",
+          0
+        ]
+      },
+      "class_type": "Dwpose_Tensorrt",
+      "_meta": {
+        "title": "Dwpose Tensorrt"
+      }
+    },
+    "7": {
+      "inputs": {
+        "yolox_l": "* Please convert the model first ! *",
+        "ll_ucoco_384": "* Please convert the model first ! *"
+      },
+      "class_type": "load_Dwpos_Tensorrt",
+      "_meta": {
+        "title": "load Dwpos Tensorrt"
+      }
+    },
+    "9": {
+      "inputs": {
+        "image": "256x256-RGBA.png",
+        "upload": "image"
+      },
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "加载图像"
+      }
+    },
+    "12": {
+      "inputs": {
+        "depth_anything_model": "* Please convert the model first ! *"
+      },
+      "class_type": "load_DepthAnything_Tensorrt",
+      "_meta": {
+        "title": "load DepthAnything Tensorrt"
+      }
+    },
+    "13": {
+      "inputs": {
+        "images": [
+          "9",
+          0
+        ],
+        "depth_anything_model": [
+          "12",
+          0
+        ]
+      },
+      "class_type": "DepthAnything_Tensorrt",
+      "_meta": {
+        "title": "DepthAnything Tensorrt"
+      }
+    },
+    "14": {
+      "inputs": {
+        "engine": null
+      },
+      "class_type": "YoloNasPoseTensorrt",
+      "_meta": {
+        "title": "YoloNasPoseTensorrt"
+      }
+    },
+    "15": {
+      "inputs": {
+        "engine": null
+      },
+      "class_type": "FaceRestoreTensorrt",
+      "_meta": {
+        "title": "FaceRestoreTensorrt"
+      }
+    },
+    "16": {
+      "inputs": {
+        "engine": null,
+        "resize_to": "none"
+      },
+      "class_type": "UpscalerTensorrt",
+      "_meta": {
+        "title": "UpscalerTensorrt"
+      }
+    },
+    "17": {
+      "inputs": {
+        "engine": null,
+        "clear_cache_after_n_frames": 100,
+        "multiplier": 2,
+        "use_cuda_graph": true,
+        "keep_model_loaded": false
+      },
+      "class_type": "RifeTensorrt",
+      "_meta": {
+        "title": "RifeTensorrt"
+      }
+    },
+    "18": {
+      "inputs": {
+        "reversal_mask": false,
+        "birefnet": [
+          "22",
+          0
+        ],
+        "image": [
+          "9",
+          0
+        ]
+      },
+      "class_type": "BiRefNet2_tensort",
+      "_meta": {
+        "title": "BiRefNet2 tensort"
+      }
+    },
+    "22": {
+      "inputs": {
+        "birefnet_model": "* Please convert the model first ! *"
+      },
+      "class_type": "load_BiRefNet2_tensort",
+      "_meta": {
+        "title": "load BiRefNet2 tensort"
+      }
+    }
+  }
+}

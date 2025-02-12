@@ -7,9 +7,11 @@ from PIL import Image
 import torch
 
 import folder_paths
+from .model_data.load_data import model_collect,SHA256_dict,model_class
 from .models_BiRefNet.models.birefnet import BiRefNet
 from .export_trt.trt_utilities import Engine_4
 from .export_trt.utilities import Engine
+
 
 torch.set_float32_matmul_precision(["high", "highest"][0])
 
@@ -22,92 +24,53 @@ def tensor2np(tensor: torch.Tensor) -> List[np.ndarray]:
   else:  # Batch of images
     return [np.clip(255.0 * t.cpu().numpy(), 0, 255).astype(np.uint8) for t in tensor]
 
-# https://huggingface.co/EmmaJohnson311/TensorRT-ONNX-collect/tree/main
-model_collect = {
-    "BiRefNet-v2-onnx" : ["BiRefNet-v2-onnx/BiRefNet_lite-general-2K-epoch_232.onnx",
-                  "BiRefNet-v2-onnx/BiRefNet-COD-epoch_125.onnx",
-                  "BiRefNet-v2-onnx/BiRefNet-DIS-epoch_590.onnx",
-                  "BiRefNet-v2-onnx/BiRefNet-general-bb_swin_v1_tiny-epoch_232.onnx",
-                  "BiRefNet-v2-onnx/BiRefNet-general-epoch_244.onnx",
-                  "BiRefNet-v2-onnx/BiRefNet-general-resolution_512x512-fp16-epoch_216.onnx",
-                  "BiRefNet-v2-onnx/BiRefNet-HRSOD_DHU-epoch_115.onnx",
-                  "BiRefNet-v2-onnx/BiRefNet-massive-TR_DIS5K_TR_TEs-epoch_420.onnx",
-                  "BiRefNet-v2-onnx/BiRefNet-matting-epoch_100.onnx",
-                  "BiRefNet-v2-onnx/BiRefNet-portrait-epoch_150.onnx",],
-    "Depth-Anything-2-Onnx" : ["Depth-Anything-2-Onnx/depth_anything_v2_vitb.onnx",
-                  "Depth-Anything-2-Onnx/depth_anything_v2_vitl.onnx",
-                  "Depth-Anything-2-Onnx/depth_anything_v2_vits.onnx",
-                  "depth-pro-onnx/depth_pro.onnx",],
-    "dwpose-onnx" : ["dwpose-onnx/yolox_l.onnx",
-                     "dwpose-onnx/dw-ll_ucoco_384.onnx"],
-    "yolo-nas-pose-onnx" : ["yolo-nas-pose-onnx/yolox_l_dynamic_batch_opset_17_sim.onnx",
-                  "yolo-nas-pose-onnx/yolo_nas_pose_l_0.1.onnx",
-                  "yolo-nas-pose-onnx/yolo_nas_pose_l_0.2.onnx",
-                  "yolo-nas-pose-onnx/yolo_nas_pose_l_0.5.onnx",
-                  "yolo-nas-pose-onnx/yolo_nas_pose_l_0.8.onnx",
-                  "yolo-nas-pose-onnx/yolo_nas_pose_l_0.35.onnx",],
-    "facerestore-onnx" : ["facerestore-onnx/codeformer.onnx",
-                        "facerestore-onnx/gfqgan.onnx",],
-    "rife-onnx" : ["rife-onnx/rife47_ensemble_True_scale_1_sim.onnx",
-                  "rife-onnx/rife48_ensemble_True_scale_1_sim.onnx",
-                  "rife-onnx/rife49_ensemble_True_scale_1_sim.onnx",],
-    "Upscaler-Onnx" : ["Upscaler-Onnx/4x_foolhardy_Remacri.onnx",
-                  "Upscaler-Onnx/4x_NMKD-Siax_200k.onnx",
-                  "Upscaler-Onnx/4x_RealisticRescaler_100000_G.onnx",
-                  "Upscaler-Onnx/4x-AnimeSharp.onnx",
-                  "Upscaler-Onnx/4x-UltraSharp.onnx",
-                  "Upscaler-Onnx/4x-WTP-UDS-Esrgan.onnx",
-                  "Upscaler-Onnx/RealESRGAN_x4.onnx",],
-}
 
-model_SHA256 = {
-                'BiRefNet-v2-onnx/BiRefNet_lite-general-2K-epoch_232.onnx': "", 
-                'BiRefNet-v2-onnx/BiRefNet-COD-epoch_125.onnx': "", 
-                'BiRefNet-v2-onnx/BiRefNet-DIS-epoch_590.onnx': "", 
-                'BiRefNet-v2-onnx/BiRefNet-general-bb_swin_v1_tiny-epoch_232.onnx': "", 
-                'BiRefNet-v2-onnx/BiRefNet-general-epoch_244.onnx': "", 
-                'BiRefNet-v2-onnx/BiRefNet-general-resolution_512x512-fp16-epoch_216.onnx': "", 
-                'BiRefNet-v2-onnx/BiRefNet-HRSOD_DHU-epoch_115.onnx': "", 
-                'BiRefNet-v2-onnx/BiRefNet-massive-TR_DIS5K_TR_TEs-epoch_420.onnx': "", 
-                'BiRefNet-v2-onnx/BiRefNet-matting-epoch_100.onnx': "", 
-                'BiRefNet-v2-onnx/BiRefNet-portrait-epoch_150.onnx': "", 
-                'Depth-Anything-2-Onnx/depth_anything_v2_vitb.onnx': "", 
-                'Depth-Anything-2-Onnx/depth_anything_v2_vitl.onnx': "", 
-                'Depth-Anything-2-Onnx/depth_anything_v2_vits.onnx': "", 
-                'depth-pro-onnx/depth_pro.onnx': "", 
-                'dwpose-onnx/yolox_l.onnx': "7860ae79de6c89a3c1eb72ae9a2756c0ccfbe04b7791bb5880afabd97855a411", 
-                'dwpose-onnx/dw-ll_ucoco_384.onnx': "724f4ff2439ed61afb86fb8a1951ec39c6220682803b4a8bd4f598cd913b1843", 
-                'yolo-nas-pose-onnx/yolox_l_dynamic_batch_opset_17_sim.onnx': "", 
-                'yolo-nas-pose-onnx/yolo_nas_pose_l_0.1.onnx': "", 
-                'yolo-nas-pose-onnx/yolo_nas_pose_l_0.2.onnx': "", 
-                'yolo-nas-pose-onnx/yolo_nas_pose_l_0.5.onnx': "", 
-                'yolo-nas-pose-onnx/yolo_nas_pose_l_0.8.onnx': "", 
-                'yolo-nas-pose-onnx/yolo_nas_pose_l_0.35.onnx': "", 
-                'facerestore-onnx/codeformer.onnx': "", 
-                'facerestore-onnx/gfqgan.onnx': "", 
-                'rife-onnx/rife47_ensemble_True_scale_1_sim.onnx': "", 
-                'rife-onnx/rife48_ensemble_True_scale_1_sim.onnx': "", 
-                'rife-onnx/rife49_ensemble_True_scale_1_sim.onnx': "", 
-                'Upscaler-Onnx/4x_foolhardy_Remacri.onnx': "", 
-                'Upscaler-Onnx/4x_NMKD-Siax_200k.onnx': "", 
-                'Upscaler-Onnx/4x_RealisticRescaler_100000_G.onnx': "", 
-                'Upscaler-Onnx/4x-AnimeSharp.onnx': "", 
-                'Upscaler-Onnx/4x-UltraSharp.onnx': "", 
-                'Upscaler-Onnx/4x-WTP-UDS-Esrgan.onnx': "", 
-                'Upscaler-Onnx/RealESRGAN_x4.onnx': ""
-                }
+#model_collect = {
+#    "BiRefNet-v2-onnx" : ["BiRefNet-v2-onnx/BiRefNet_lite-general-2K-epoch_232.onnx",
+#                  "BiRefNet-v2-onnx/BiRefNet-COD-epoch_125.onnx",
+#                  "BiRefNet-v2-onnx/BiRefNet-DIS-epoch_590.onnx",
+#                  "BiRefNet-v2-onnx/BiRefNet-general-bb_swin_v1_tiny-epoch_232.onnx",
+#                  "BiRefNet-v2-onnx/BiRefNet-general-epoch_244.onnx",
+#                  "BiRefNet-v2-onnx/BiRefNet-general-resolution_512x512-fp16-epoch_216.onnx",
+#                  "BiRefNet-v2-onnx/BiRefNet-HRSOD_DHU-epoch_115.onnx",
+#                  "BiRefNet-v2-onnx/BiRefNet-massive-TR_DIS5K_TR_TEs-epoch_420.onnx",
+#                  "BiRefNet-v2-onnx/BiRefNet-matting-epoch_100.onnx",
+#                  "BiRefNet-v2-onnx/BiRefNet-portrait-epoch_150.onnx",],
+#    "Depth-Anything-2-Onnx" : ["Depth-Anything-2-Onnx/depth_anything_v2_vitb.onnx",
+#                  "Depth-Anything-2-Onnx/depth_anything_v2_vitl.onnx",
+#                  "Depth-Anything-2-Onnx/depth_anything_v2_vits.onnx",
+#                  "depth-pro-onnx/depth_pro.onnx",],
+#    "dwpose-onnx" : ["dwpose-onnx/yolox_l.onnx",
+#                     "dwpose-onnx/dw-ll_ucoco_384.onnx"],
+#    "yolo-nas-pose-onnx" : ["yolo-nas-pose-onnx/yolox_l_dynamic_batch_opset_17_sim.onnx",
+#                  "yolo-nas-pose-onnx/yolo_nas_pose_l_0.1.onnx",
+#                  "yolo-nas-pose-onnx/yolo_nas_pose_l_0.2.onnx",
+#                  "yolo-nas-pose-onnx/yolo_nas_pose_l_0.5.onnx",
+#                  "yolo-nas-pose-onnx/yolo_nas_pose_l_0.8.onnx",
+#                  "yolo-nas-pose-onnx/yolo_nas_pose_l_0.35.onnx",],
+#    "facerestore-onnx" : ["facerestore-onnx/codeformer.onnx",
+#                        "facerestore-onnx/gfqgan.onnx",],
+#    "rife-onnx" : ["rife-onnx/rife47_ensemble_True_scale_1_sim.onnx",
+#                  "rife-onnx/rife48_ensemble_True_scale_1_sim.onnx",
+#                  "rife-onnx/rife49_ensemble_True_scale_1_sim.onnx",],
+#    "Upscaler-Onnx" : ["Upscaler-Onnx/4x_foolhardy_Remacri.onnx",
+#                  "Upscaler-Onnx/4x_NMKD-Siax_200k.onnx",
+#                  "Upscaler-Onnx/4x_RealisticRescaler_100000_G.onnx",
+#                  "Upscaler-Onnx/4x-AnimeSharp.onnx",
+#                  "Upscaler-Onnx/4x-UltraSharp.onnx",
+#                  "Upscaler-Onnx/4x-WTP-UDS-Esrgan.onnx",
+#                  "Upscaler-Onnx/RealESRGAN_x4.onnx",],
+#}
+#model_class = {"BiRefNet-v2-onnx":"BiRefNet",
+#               "Depth-Anything-2-Onnx":"Depth-Anything",
+#               "dwpose-onnx":"dwpose",
+#               "yolo-nas-pose-onnx" :"yolo-nas-pose",
+#               "facerestore-onnx":"facerestore",
+#               "rife-onnx":"rife",
+#               "Upscaler-Onnx":"upscaler"}
 
-model_class = {"BiRefNet-v2-onnx":"BiRefNet",
-               "Depth-Anything-2-Onnx":"Depth-Anything",
-               "dwpose-onnx":"dwpose",
-               "yolo-nas-pose-onnx" :"yolo-nas-pose",
-               "facerestore-onnx":"facerestore",
-               "rife-onnx":"rife",
-               "Upscaler-Onnx":"upscaler"}
 
-download_path_onnx = os.path.join(folder_paths.models_dir,"tensorrt/TensorRT-ONNX-collect")
-
-CATEGORY_NAME = "TensoRT/plug-in"
+CATEGORY_NAME = "TensoRT/building"
 
 # 目前仅支持linux
 class building_tensorrt_engine:
@@ -139,6 +102,7 @@ class building_tensorrt_engine:
     FUNCTION = "building"
     CATEGORY = CATEGORY_NAME
     def building(self,select_model,force_building,use_fp16,MirrorDownload):
+        download_path_onnx = os.path.join(folder_paths.models_dir,"tensorrt/TensorRT-ONNX-collect")
         # 准备路径和文件字符串
         onnx_name = os.path.basename(select_model)
         trt_name = os.path.splitext(onnx_name)[0] + ".engine"
