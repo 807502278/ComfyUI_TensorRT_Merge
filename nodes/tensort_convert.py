@@ -53,40 +53,40 @@ class Building_TRT:
         # select_model_class = model_class[select_model.split("/")[0]]
         onnx_name = os.path.basename(select_model)
         trt_name = os.path.splitext(onnx_name)[0] + ".engine"
-        new_path = self.mk_path(os.path.join(folder_paths.models_dir,"tensorrt",model_class[select_model.split("/")[0]]))
+        select_model_class = model_class[select_model.split("/")[0]]
+        new_path = self.mk_path(os.path.join(folder_paths.models_dir,"tensorrt",select_model_class))
         trt_path = os.path.join(new_path,trt_name)
         onnx_path = self.Download(download_path_onnx,select_model,MirrorDownload)
 
         if not force_building:
             if not os.path.isfile(trt_path): #没有trt则转换
                 print(f"Prompt: Start Conversion {select_model}")
-                self.Conversion(select_model,onnx_path,trt_path,use_fp16)
+                self.Conversion(select_model_class,onnx_path,trt_path,use_fp16)
             print("Prompt: Detected existing trt model and force_building=False, skip conversion")
         else : #强制转换
             formatted_time = str(time.strftime("%Y%m%d-%H%M%S", time.localtime()))
             trt_name = os.path.splitext(onnx_name)[0] + formatted_time + ".engine"
             trt_path = os.path.join(new_path,trt_name)
-            self.Conversion(select_model,onnx_path,trt_path,use_fp16)
+            self.Conversion(select_model_class,onnx_path,trt_path,use_fp16)
 
         return (trt_path,)
 
 
-    def Conversion(self,select_model,onnx_path,trt_path,use_fp16): #转换
+    def Conversion(self,select_model_class,onnx_path,trt_path,use_fp16): #转换
         model = None
         rife_class = ["rife-onnx",model_class["rife-onnx"]]
         BiRefNet_class = ["BiRefNet-v2-onnx",model_class["rife-onnx"]]
         all_class = list(model_class.keys()) + list(model_class.values())
-        if select_model in rife_class : 
+        if select_model_class in rife_class : 
             print("Prompt: Current conversion model: Rife")
             model = self.building_4(onnx_path, trt_path, use_fp16)
-        elif select_model in BiRefNet_class : 
+        elif select_model_class in BiRefNet_class : 
             print("Prompt: Current conversion model: BiRefNet v2")
             model = self.building_RGB(onnx_path, trt_path)
-        elif select_model in all_class : 
-            print(f"Prompt: Current conversion model: {select_model}")
+        elif select_model_class in all_class : 
+            print(f"Prompt: Current conversion model: {select_model_class}")
             model = self.building_A(onnx_path, trt_path, use_fp16)
         else: 
-            print(select_model)
             raise TypeError("Error: Unknown or unsupported type.")
         print(f"Prompt: Conversion successful! The model is saved in:\n {trt_path}")
         return model

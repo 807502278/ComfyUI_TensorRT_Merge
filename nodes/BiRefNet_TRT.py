@@ -68,6 +68,53 @@ class BiRefNet_ModelLoader_TRT:
         if isinstance(local_models,tuple): local_models = list(local_models[0]) #转列表
         return {
             "required": {
+                "load_mode": (['local', 'local_onnx', 'local_trt', 'pretrained'], {"default": "local"}),
+                "birefnet_model": (local_models, {
+                    "default": local_models[0],
+                    "pysssss.binding": [{
+                        "source": "load_mode",
+                        "callback": [
+                            {
+                                "type": "if",
+                                "condition": [
+                                    {"left": "$source.value", "op": "eq", "right": '"local"'}
+                                ],
+                                "true": [
+                                    {"type": "set", "target": "$this.options.values", "value": local_models}
+                                ],
+                                "false": [
+                                    {
+                                        "type": "if",
+                                        "condition": [
+                                            {"left": "$source.value", "op": "eq", "right": '"local_onnx"'}
+                                        ],
+                                        "true": [
+                                            {"type": "set", "target": "$this.options.values", "value": local_models}
+                                        ],
+                                        "false": [
+                                            {
+                                                "type": "if",
+                                                "condition": [
+                                                    {"left": "$source.value", "op": "eq", "right": '"local_trt"'}
+                                                ],
+                                                "true": [
+                                                    {"type": "set", "target": "$this.options.values", "value": local_models}
+                                                ],
+                                                "false": [
+                                                    {"type": "set", "target": "$this.options.values", "value": pretrained_weights}
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }]
+                })
+            }
+        }
+        return {
+            "required": {
                 "load_mode": (['local','pretrained'],{"default": "local"}),
                 "birefnet_model": (local_models,{
                     "default": local_models[0],
@@ -96,7 +143,7 @@ class BiRefNet_ModelLoader_TRT:
     CATEGORY = CATEGORY_NAME
   
     def load_model(self, load_mode,birefnet_model):
-        
+        Accelerator_Model_path = os.path.join(folder_paths.models_dir,"tensorrt")
         if birefnet_model.endswith('.onnx'):
                 import onnxruntime
                 providers = ['CPUExecutionProvider'] if device == 'cpu' else ['CUDAExecutionProvider']
