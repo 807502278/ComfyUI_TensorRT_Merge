@@ -4,22 +4,23 @@ import torch
 import torch.nn.functional as F
 from torchvision import transforms
 import cv2
+from typing import List, Union
 
 import folder_paths
 from comfy.utils import ProgressBar
+from .model_data.load_data import model_class
+from .model_data.util import tensor2pil,tensor2np
+#from .models_BiRefNet.models.birefnet import BiRefNet
 
-
-
-folder_paths.add_model_folder_path("BiRefNet",os.path.join(folder_paths.models_dir, "BiRefNet"))
+#folder_paths.add_model_folder_path("BiRefNet",os.path.join(folder_paths.models_dir, "BiRefNet"))
 device = "cuda" if torch.cuda.is_available() else "cpu"
 torch.set_float32_matmul_precision(["high", "highest"][0])
 
 CATEGORY_NAME = "TensoRT/plug-in"
 model_Warning = "* Please convert the model first ! *"
 
-from .tensort_convert import model_class
 trt_path_dict = {}
-for k,v in model_class.items():
+for k,v in model_class.items(): #将所有trt存放路径放入字典，若路径不存在则新建
     trt_path = os.path.join(folder_paths.models_dir, "tensorrt", v)
     if not os.path.isdir(trt_path):
         os.makedirs(trt_path)
@@ -180,7 +181,7 @@ class load_BiRefNet2_tensort:
     CATEGORY = CATEGORY_NAME
   
     def load_model(self,birefnet_model):
-        model_path = folder_paths.get_full_path("BiRefNet", birefnet_model)
+        model_path = trt_path_dict["BiRefNet"]
         if not os.path.isfile(model_path): 
             model_path = os.path.join(folder_paths.models_dir,"tensorrt/BiRefNet",birefnet_model)
         print(f"load model: {model_path}")
@@ -290,6 +291,6 @@ NODE_CLASS_MAPPINGS = {
     "load_DepthAnything_Tensorrt":load_DepthAnything_Tensorrt,
     "DepthAnything_Tensorrt":DepthAnything_Tensorrt,
 
-    "load_BiRefNet2_tensort":load_BiRefNet2_tensort,
-    "BiRefNet2_tensort":BiRefNet2_tensort,
+    #"load_BiRefNet2_tensort":load_BiRefNet2_tensort,
+    #"BiRefNet2_tensort":BiRefNet2_tensort,
 }

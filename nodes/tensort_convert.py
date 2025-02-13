@@ -8,71 +8,16 @@ import torch
 
 import folder_paths
 from .model_data.load_data import model_collect,SHA256_dict,model_class
-from .models_BiRefNet.models.birefnet import BiRefNet
 from .export_trt.trt_utilities import Engine_4
 from .export_trt.utilities import Engine
+#from .model_data.util import tensor2pil,tensor2np
+#from .BiRefNet.models.birefnet import BiRefNet
 
 
 torch.set_float32_matmul_precision(["high", "highest"][0])
-
-def tensor2pil(image):
-    return Image.fromarray(np.clip(255. * image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8))
-# Tensor to np
-def tensor2np(tensor: torch.Tensor) -> List[np.ndarray]:
-  if len(tensor.shape) == 3:  # Single image
-    return np.clip(255.0 * tensor.cpu().numpy(), 0, 255).astype(np.uint8)
-  else:  # Batch of images
-    return [np.clip(255.0 * t.cpu().numpy(), 0, 255).astype(np.uint8) for t in tensor]
-
-
-#model_collect = {
-#    "BiRefNet-v2-onnx" : ["BiRefNet-v2-onnx/BiRefNet_lite-general-2K-epoch_232.onnx",
-#                  "BiRefNet-v2-onnx/BiRefNet-COD-epoch_125.onnx",
-#                  "BiRefNet-v2-onnx/BiRefNet-DIS-epoch_590.onnx",
-#                  "BiRefNet-v2-onnx/BiRefNet-general-bb_swin_v1_tiny-epoch_232.onnx",
-#                  "BiRefNet-v2-onnx/BiRefNet-general-epoch_244.onnx",
-#                  "BiRefNet-v2-onnx/BiRefNet-general-resolution_512x512-fp16-epoch_216.onnx",
-#                  "BiRefNet-v2-onnx/BiRefNet-HRSOD_DHU-epoch_115.onnx",
-#                  "BiRefNet-v2-onnx/BiRefNet-massive-TR_DIS5K_TR_TEs-epoch_420.onnx",
-#                  "BiRefNet-v2-onnx/BiRefNet-matting-epoch_100.onnx",
-#                  "BiRefNet-v2-onnx/BiRefNet-portrait-epoch_150.onnx",],
-#    "Depth-Anything-2-Onnx" : ["Depth-Anything-2-Onnx/depth_anything_v2_vitb.onnx",
-#                  "Depth-Anything-2-Onnx/depth_anything_v2_vitl.onnx",
-#                  "Depth-Anything-2-Onnx/depth_anything_v2_vits.onnx",
-#                  "depth-pro-onnx/depth_pro.onnx",],
-#    "dwpose-onnx" : ["dwpose-onnx/yolox_l.onnx",
-#                     "dwpose-onnx/dw-ll_ucoco_384.onnx"],
-#    "yolo-nas-pose-onnx" : ["yolo-nas-pose-onnx/yolox_l_dynamic_batch_opset_17_sim.onnx",
-#                  "yolo-nas-pose-onnx/yolo_nas_pose_l_0.1.onnx",
-#                  "yolo-nas-pose-onnx/yolo_nas_pose_l_0.2.onnx",
-#                  "yolo-nas-pose-onnx/yolo_nas_pose_l_0.5.onnx",
-#                  "yolo-nas-pose-onnx/yolo_nas_pose_l_0.8.onnx",
-#                  "yolo-nas-pose-onnx/yolo_nas_pose_l_0.35.onnx",],
-#    "facerestore-onnx" : ["facerestore-onnx/codeformer.onnx",
-#                        "facerestore-onnx/gfqgan.onnx",],
-#    "rife-onnx" : ["rife-onnx/rife47_ensemble_True_scale_1_sim.onnx",
-#                  "rife-onnx/rife48_ensemble_True_scale_1_sim.onnx",
-#                  "rife-onnx/rife49_ensemble_True_scale_1_sim.onnx",],
-#    "Upscaler-Onnx" : ["Upscaler-Onnx/4x_foolhardy_Remacri.onnx",
-#                  "Upscaler-Onnx/4x_NMKD-Siax_200k.onnx",
-#                  "Upscaler-Onnx/4x_RealisticRescaler_100000_G.onnx",
-#                  "Upscaler-Onnx/4x-AnimeSharp.onnx",
-#                  "Upscaler-Onnx/4x-UltraSharp.onnx",
-#                  "Upscaler-Onnx/4x-WTP-UDS-Esrgan.onnx",
-#                  "Upscaler-Onnx/RealESRGAN_x4.onnx",],
-#}
-#model_class = {"BiRefNet-v2-onnx":"BiRefNet",
-#               "Depth-Anything-2-Onnx":"Depth-Anything",
-#               "dwpose-onnx":"dwpose",
-#               "yolo-nas-pose-onnx" :"yolo-nas-pose",
-#               "facerestore-onnx":"facerestore",
-#               "rife-onnx":"rife",
-#               "Upscaler-Onnx":"upscaler"}
-
-
 CATEGORY_NAME = "TensoRT/building"
 
-# 目前仅支持linux
+
 class Building_TRT:
     @classmethod
     def INPUT_TYPES(cls):
@@ -105,17 +50,18 @@ class Building_TRT:
     def building(self,select_model,force_building,use_fp16,MirrorDownload):
         download_path_onnx = os.path.join(folder_paths.models_dir,"tensorrt/TensorRT-ONNX-collect")
         # 准备路径和文件字符串
+        # select_model_class = model_class[select_model.split("/")[0]]
         onnx_name = os.path.basename(select_model)
         trt_name = os.path.splitext(onnx_name)[0] + ".engine"
-        new_path = os.path.join(folder_paths.models_dir,"tensorrt",model_class[select_model.split("/")[0]])
-        if not os.path.isdir(new_path): os.mkdir(new_path) #创建输出路径
+        new_path = self.mk_path(os.path.join(folder_paths.models_dir,"tensorrt",model_class[select_model.split("/")[0]]))
         trt_path = os.path.join(new_path,trt_name)
         onnx_path = self.Download(download_path_onnx,select_model,MirrorDownload)
 
         if not force_building:
             if not os.path.isfile(trt_path): #没有trt则转换
-                print("Start Conversion...")
+                print(f"Prompt: Start Conversion {select_model}")
                 self.Conversion(select_model,onnx_path,trt_path,use_fp16)
+            print("Prompt: Detected existing trt model and force_building=False, skip conversion")
         else : #强制转换
             formatted_time = str(time.strftime("%Y%m%d-%H%M%S", time.localtime()))
             trt_name = os.path.splitext(onnx_name)[0] + formatted_time + ".engine"
@@ -125,17 +71,30 @@ class Building_TRT:
         return (trt_path,)
 
 
-    def Conversion(self,select_model,onnx_path,trt_path,use_fp16):
+    def Conversion(self,select_model,onnx_path,trt_path,use_fp16): #转换
         model = None
-        try:
-            if select_model == "rife-onnx": model = self.building_4(onnx_path, trt_path, use_fp16)
-            elif select_model == "BiRefNet-v2-onnx": model = self.building_RGB(onnx_path, trt_path)
-            else : model = self.building_A(onnx_path, trt_path, use_fp16)
-            print(f"Conversion successful! The model is saved in:\n {trt_path}")
-        except:
-            print("Conversion failed !")
+        rife_class = ["rife-onnx",model_class["rife-onnx"]]
+        BiRefNet_class = ["BiRefNet-v2-onnx",model_class["rife-onnx"]]
+        all_class = list(model_class.keys()) + list(model_class.values())
+        if select_model in rife_class : 
+            print("Prompt: Current conversion model: Rife")
+            model = self.building_4(onnx_path, trt_path, use_fp16)
+        elif select_model in BiRefNet_class : 
+            print("Prompt: Current conversion model: BiRefNet v2")
+            model = self.building_RGB(onnx_path, trt_path)
+        elif select_model in all_class : 
+            print(f"Prompt: Current conversion model: {select_model}")
+            model = self.building_A(onnx_path, trt_path, use_fp16)
+        else: 
+            print(select_model)
+            raise TypeError("Error: Unknown or unsupported type.")
+        print(f"Prompt: Conversion successful! The model is saved in:\n {trt_path}")
         return model
     
+    def mk_path(self,path): #创建路径
+        if not os.path.isdir(path): os.mkdir(path)
+        return path
+
     def Download(self,download_path_onnx,select_model,MirrorDownload=True):
         onnx_path = os.path.join(download_path_onnx,select_model)
         if not os.path.isfile(onnx_path): #若本地没有onnx模型则下载
@@ -229,10 +188,58 @@ class Building_TRT:
         return ret
 
 
+class Custom_Building_TRT(Building_TRT):
+    custom_onnx_path = os.path.join(folder_paths.models_dir,"tensorrt","custom_onnx")
+    @classmethod
+    def INPUT_TYPES(cls):
+        onnx_path = os.listdir(cls.mk_path(cls,cls.custom_onnx_path))
+        if len(onnx_path)==0:
+            onnx_path = ["* models/tensorrt/custom_onnx There are no files inside! *"]
+        model_class_list = list(model_class.keys())
+        return {
+            "required": {
+                "select_model": (onnx_path,{"default": onnx_path[0],}),
+                "select_class":(model_class_list,{"default": model_class_list[0],}),
+                "force_building": ("BOOLEAN",{"default": False}),
+                "use_fp16": ("BOOLEAN",{"default": True}),
+                "MirrorDownload": ("BOOLEAN",{"default": True}),
+            }
+        }
+    
+    def building(self,select_model,select_class,force_building,use_fp16,MirrorDownload):
+        # 准备路径和文件字符串
+        onnx_name = os.path.basename(select_model)
+        trt_name = os.path.splitext(onnx_name)[0] + ".engine"
+        trt_name2 = os.path.splitext(onnx_name)[0] + ".trt"
+        new_path = self.mk_path(os.path.join(folder_paths.models_dir,"tensorrt",model_class[select_class]))
+        if not os.path.isdir(new_path): os.mkdir(new_path) #创建输出路径
+        trt_path = os.path.join(new_path,trt_name)
+        trt_path2 = os.path.join(new_path,trt_name2)
+        onnx_path = os.path.join(self.__class__.custom_onnx_path,select_model)
+
+        model = None
+        if not force_building:
+            if os.path.isfile(trt_path): #有.engine文件
+                print("Prompt: Detected existing engine model and force_building=False, skip conversion")
+            elif os.path.isfile(trt_path2): #有.trt文件
+                print("Prompt: Detected existing trt model and force_building=False, skip conversion")
+                trt_path = trt_path2
+            else:
+                print(f"Prompt: Start Conversion {select_model}")
+                model = self.Conversion(select_class,onnx_path,trt_path,use_fp16)
+        else : #强制转换
+            formatted_time = str(time.strftime("%Y%m%d-%H%M%S", time.localtime()))
+            trt_name = os.path.splitext(onnx_name)[0] + formatted_time + ".engine"
+            trt_path = os.path.join(new_path,trt_name)
+            model = self.Conversion(select_model,onnx_path,trt_path,use_fp16)
+        return (model,)
+
+
 class General_TensorRT_Run:
     ...
 
 
 NODE_CLASS_MAPPINGS = {
     "Building_TRT":Building_TRT,
+    "Custom_Building_TRT":Custom_Building_TRT
 }

@@ -5,14 +5,14 @@ import os
 
 class ONNX_ModelData():
     def __init__(self,json_path = None):
-        self.json_path = json_path
+        self.json_path = json_path #json加载路径
         if self.json_path is None:
             self.json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'onnx_data.json')
-        self.data = None
-        self.model_class = None
-        self.onnx_data = None
-
-        self.model_collect = None #带分类结构的字典
+        self.data = None #完整的json数据
+        self.onnx_data = None #完整的onnx数据字典
+        
+        self.model_class = None #分类对应文件夹的字典
+        self.model_collect = None #带分类对应多个名称的字典
         self.SHA256_dict = None #模型名对应哈希的字典
 
         self._load_json()
