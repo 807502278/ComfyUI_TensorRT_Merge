@@ -73,14 +73,14 @@ def tensor2np(tensor: torch.Tensor) -> List[np.ndarray]:
 CATEGORY_NAME = "TensoRT/building"
 
 # 目前仅支持linux
-class building_tensorrt_engine:
+class Building_TRT:
     @classmethod
     def INPUT_TYPES(cls):
         all_model_name = []
         for i in model_collect.values():
             all_model_name = all_model_name + i
 
-        # 区分本地模型，待完成
+        # #区分本地模型，待完成
         #all_model = glob.glob(os.path.join(folder_paths.models_dir,"tensorrt","*.onnx"))
         #all_model_name = []
         #for i in all_model:
@@ -98,6 +98,7 @@ class building_tensorrt_engine:
         }
 
     RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("trt_path",)
     OUTPUT_NODE = True
     FUNCTION = "building"
     CATEGORY = CATEGORY_NAME
@@ -109,42 +110,48 @@ class building_tensorrt_engine:
         new_path = os.path.join(folder_paths.models_dir,"tensorrt",model_class[select_model.split("/")[0]])
         if not os.path.isdir(new_path): os.mkdir(new_path) #创建输出路径
         trt_path = os.path.join(new_path,trt_name)
-        onnx_path = os.path.join(download_path_onnx,select_model)
-        
-        model = None
-        if not os.path.isfile(trt_path):
-            # 若本地没有模型则下载
-            if not os.path.isfile(onnx_path):
-                if MirrorDownload: 
-                    os.system("export HF_ENDPOINT='https://hf-mirror.com'")
-                    print(f"Download link:https://hf-mirror.com/EmmaJohnson311/TensorRT-ONNX-collect/{select_model}")
-                else:
-                    print(f"Download link:https://huggingface.co/EmmaJohnson311/TensorRT-ONNX-collect/{select_model}")
-                print(f"to:{onnx_path}")
+        onnx_path = self.Download(download_path_onnx,select_model,MirrorDownload)
 
-                from huggingface_hub import hf_hub_download
-                hf_hub_download(repo_id= "EmmaJohnson311/TensorRT-ONNX-collect",
-                                filename = select_model,
-                                local_dir = download_path_onnx,
-                                local_files_only=False)
-                
-            print("Download completed, Start Conversion...")
-            # 开始转换
-            try:
-                if select_model == "rife-onnx": model = self.building_4(onnx_path, trt_path, use_fp16)
-                elif select_model == "BiRefNet-v2-onnx": model = self.building_RGB(onnx_path, trt_path)
-                else : model = self.building_A(onnx_path, trt_path, use_fp16)
-                print(f"Conversion successful! The model is saved in:\n {trt_path}")
-            except:
-                print("Conversion failed !")
-
-        # 删除后重新转换，暂时不用
-        elif force_building:
-            # os.remove(trt_path)
-            print(f"{trt_path} \n Already exists, skip conversion !")
-            pass
+        if not force_building:
+            if not os.path.isfile(trt_path): #没有trt则转换
+                print("Start Conversion...")
+                self.Conversion(select_model,onnx_path,trt_path,use_fp16)
+        else : #强制转换
+            formatted_time = str(time.strftime("%Y%m%d-%H%M%S", time.localtime()))
+            trt_name = os.path.splitext(onnx_name)[0] + formatted_time + ".engine"
+            trt_path = os.path.join(new_path,trt_name)
+            self.Conversion(select_model,onnx_path,trt_path,use_fp16)
 
         return (trt_path,)
+
+
+    def Conversion(self,select_model,onnx_path,trt_path,use_fp16):
+        model = None
+        try:
+            if select_model == "rife-onnx": model = self.building_4(onnx_path, trt_path, use_fp16)
+            elif select_model == "BiRefNet-v2-onnx": model = self.building_RGB(onnx_path, trt_path)
+            else : model = self.building_A(onnx_path, trt_path, use_fp16)
+            print(f"Conversion successful! The model is saved in:\n {trt_path}")
+        except:
+            print("Conversion failed !")
+        return model
+    
+    def Download(self,download_path_onnx,select_model,MirrorDownload=True):
+        onnx_path = os.path.join(download_path_onnx,select_model)
+        if not os.path.isfile(onnx_path): #若本地没有onnx模型则下载
+            if MirrorDownload: 
+                os.system("export HF_ENDPOINT='https://hf-mirror.com'")
+                print(f"Download link:https://hf-mirror.com/EmmaJohnson311/TensorRT-ONNX-collect/{select_model}")
+            else:
+                print(f"Download link:https://huggingface.co/EmmaJohnson311/TensorRT-ONNX-collect/{select_model}")
+            print(f"to:{onnx_path}")
+            from huggingface_hub import hf_hub_download
+            hf_hub_download(repo_id= "EmmaJohnson311/TensorRT-ONNX-collect",
+                            filename = select_model,
+                            local_dir = download_path_onnx,
+                            local_files_only=False)
+            print("Download completed.")
+        return onnx_path
         
     def building_A(self, onnx_path, trt_path, use_fp16):
         engine = Engine(trt_path)
@@ -222,7 +229,10 @@ class building_tensorrt_engine:
         return ret
 
 
+class General_TensorRT_Run:
+    ...
+
 
 NODE_CLASS_MAPPINGS = {
-    "building_tensorrt_engine":building_tensorrt_engine,
+    "Building_TRT":Building_TRT,
 }

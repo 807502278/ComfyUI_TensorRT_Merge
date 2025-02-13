@@ -283,6 +283,7 @@ class BiRefNet2_tensort:
         return image
     
 
+
 NODE_CLASS_MAPPINGS = {
     "load_Dwpos_Tensorrt": load_Dwpos_Tensorrt,
     "Dwpose_Tensorrt": Dwpose_Tensorrt,
