@@ -131,7 +131,7 @@ class TQDMProgressMonitor(trt.IProgressMonitor):
             return False
 
 
-class Engine:
+class Engine_SC:
     def __init__(
         self,
         engine_path,

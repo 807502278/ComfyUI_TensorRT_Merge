@@ -52,9 +52,9 @@ SHA256_dict = test.SHA256_dict
 model_class = test.model_class
 model_collect = test.model_collect
 
-custom_onnx_path = os.path.join(folder_paths.models_dir,"tensorrt","custom_onnx")
-onnx_path = os.path.join(folder_paths.models_dir,"tensorrt","TensorRT-ONNX-collect")
-
+onnx_path_custom = os.path.join(folder_paths.models_dir,"tensorrt","custom_onnx")
+onnx_path_collect = os.path.join(folder_paths.models_dir,"tensorrt","TensorRT-ONNX-collect")
+trt_path = os.path.join(folder_paths.models_dir,"tensorrt")
 
 def BiRefNet_name():
     pretrained_weights = [

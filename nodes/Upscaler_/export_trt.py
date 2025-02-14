@@ -1,6 +1,6 @@
 import torch
 import time
-from utilities import Engine
+from utilities import Engine_sc
 
 def export_trt(trt_path=None, onnx_path=None, use_fp16=True):
     if trt_path is None:
@@ -8,7 +8,7 @@ def export_trt(trt_path=None, onnx_path=None, use_fp16=True):
     if onnx_path is None:
         onnx_path = input("Enter the path to the ONNX model (e.g ./realesrgan.onnx): ")
 
-    engine = Engine(trt_path)
+    engine = Engine_sc(trt_path)
 
     torch.cuda.empty_cache()
 

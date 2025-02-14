@@ -1,7 +1,7 @@
 import os
 import torch
 import time
-from utilities import Engine
+from utilities import Engine_sc
 
 def export_trt(trt_path=None, onnx_path=None, use_fp16=True):
     option = input("Choose an option:\n1. Convert a single ONNX file\n2. Convert all ONNX files in a directory\nEnter your choice (1 or 2): ")
@@ -26,7 +26,7 @@ def export_trt(trt_path=None, onnx_path=None, use_fp16=True):
     #os.makedirs(trt_dir, exist_ok=True)
     total_files = len(onnx_files)
     for index, onnx_path in enumerate(onnx_files):
-        engine = Engine(trt_path)
+        engine = Engine_sc(trt_path)
 
         torch.cuda.empty_cache()
         base_name = os.path.splitext(os.path.basename(onnx_path))[0]
@@ -37,7 +37,7 @@ def export_trt(trt_path=None, onnx_path=None, use_fp16=True):
         s = time.time()
 
         # Initialize Engine with trt_path and clear CUDA cache
-        engine = Engine(trt_path)
+        engine = Engine_sc(trt_path)
         torch.cuda.empty_cache()
 
         ret = engine.build(
