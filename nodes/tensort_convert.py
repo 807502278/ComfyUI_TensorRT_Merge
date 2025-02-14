@@ -19,6 +19,14 @@ CATEGORY_NAME = "TensoRT/building"
 
 
 class Building_TRT:
+    DESCRIPTION = """
+    onnx模型转trt节点说明：
+        将抱脸TensorRT-ONNX-collect项目内的onnx模型按原目录结构放在:
+            /autodl-fs/data/models/tensorrt/TensorRT-ONNX-collect
+        将自动使用不同的转换程序转换选择的模型select_model，并将加速模型放入默认加载路径
+        若没有onnx模型，将自动从抱脸下载，MirrorDownload控制是否使用hf-mirror.com镜像下载
+        默认force_building=False若有加速模型跳过转换，为True时不跳过转换而是每次都生成增加时间后缀的加速模型
+    """
     @classmethod
     def INPUT_TYPES(cls):
         all_model_name = []
@@ -86,7 +94,7 @@ class Building_TRT:
         elif select_model_class in all_class : 
             print(f"Prompt: Current conversion model: {select_model_class}")
             model = self.building_A(onnx_path, trt_path, use_fp16)
-        else: 
+        else:
             raise TypeError("Error: Unknown or unsupported type.")
         print(f"Prompt: Conversion successful! The model is saved in:\n {trt_path}")
         return model
@@ -189,6 +197,11 @@ class Building_TRT:
 
 
 class Custom_Building_TRT(Building_TRT):
+    DESCRIPTION = """
+    自定义onnx模型转trt说明：
+        将自定义onnx模型放在:/autodl-fs/data/models/tensorrt/custom_onnx 可使用此节点加载
+        另外需要选择类型：select_class 将此类型使用不同的转换程序转换，并将加速模型放入默认加载路径
+    """
     custom_onnx_path = os.path.join(folder_paths.models_dir,"tensorrt","custom_onnx")
     @classmethod
     def INPUT_TYPES(cls):
@@ -202,11 +215,10 @@ class Custom_Building_TRT(Building_TRT):
                 "select_class":(model_class_list,{"default": model_class_list[0],}),
                 "force_building": ("BOOLEAN",{"default": False}),
                 "use_fp16": ("BOOLEAN",{"default": True}),
-                "MirrorDownload": ("BOOLEAN",{"default": True}),
             }
         }
     
-    def building(self,select_model,select_class,force_building,use_fp16,MirrorDownload):
+    def building(self,select_model,select_class,force_building,use_fp16):
         # 准备路径和文件字符串
         onnx_name = os.path.basename(select_model)
         trt_name = os.path.splitext(onnx_name)[0] + ".engine"
