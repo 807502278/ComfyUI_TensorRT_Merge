@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from torchvision import transforms
 import cv2
 from typing import List, Union
-
+from PIL import Image
 import folder_paths
 from comfy.utils import ProgressBar
 from .model_data.load_data import model_class
@@ -250,7 +250,7 @@ class BiRefNet2_tensort:
                 ).squeeze(0).sigmoid().cpu()
             
             elif net_type=='tensorrt':
-                from .models_BiRefNet import common
+                from .BiRefNet import common
                 with net.create_execution_context() as context:
                     image_data = np.expand_dims(transform_image(orig_image), axis=0).ravel()
                     engine = net
@@ -291,6 +291,6 @@ NODE_CLASS_MAPPINGS = {
     "load_DepthAnything_Tensorrt":load_DepthAnything_Tensorrt,
     "DepthAnything_Tensorrt":DepthAnything_Tensorrt,
 
-    #"load_BiRefNet2_tensort":load_BiRefNet2_tensort,
-    #"BiRefNet2_tensort":BiRefNet2_tensort,
+    "load_BiRefNet2_tensort":load_BiRefNet2_tensort,
+    "BiRefNet2_tensort":BiRefNet2_tensort,
 }
