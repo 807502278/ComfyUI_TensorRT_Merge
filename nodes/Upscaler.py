@@ -88,7 +88,7 @@ class UpscalerTensorrt:
         images_list = list(torch.split(images_bchw, split_size_or_sections=1))
 
         upscaled_frames = []
-        final_width, final_height = self.get_final_resolutions(W, H, resize_to)
+        final_width, final_height = self.get_final_resolutions(H, W, resize_to)
 
         for img in images_list:
             result = self.engine.infer({"input": img}, cudaStream)

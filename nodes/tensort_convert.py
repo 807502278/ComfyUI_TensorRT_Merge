@@ -46,7 +46,10 @@ class Building_TRT:
                 "force_building": ("BOOLEAN",{"default": False}),
                 "use_fp16": ("BOOLEAN",{"default": True}),
                 "MirrorDownload": ("BOOLEAN",{"default": True}),
-            }
+            },
+            "optional": {
+                "AdvancedSetting": ("TRT_SET",),
+            },
         }
 
     RETURN_TYPES = ("STRING",)
@@ -54,7 +57,7 @@ class Building_TRT:
     OUTPUT_NODE = True
     FUNCTION = "building"
     CATEGORY = CATEGORY_NAME
-    def building(self,select_model,force_building,use_fp16,MirrorDownload):
+    def building(self,select_model,force_building,use_fp16,MirrorDownload,AdvancedSetting=None):
         download_path_onnx = os.path.join(folder_paths.models_dir,"tensorrt/TensorRT-ONNX-collect")
         # 准备路径和文件字符串
         # select_model_class = model_class[select_model.split("/")[0]]
@@ -79,7 +82,7 @@ class Building_TRT:
         return (trt_path,)
 
 
-    def Conversion(self,select_model_class,onnx_path,trt_path,use_fp16): #转换
+    def Conversion(self,select_model_class,onnx_path,trt_path,use_fp16,Setting=None): #转换
         model = None
         rife_class = ["rife-onnx",model_class["rife-onnx"]]
         BiRefNet_class = ["BiRefNet-v2-onnx",model_class["BiRefNet-v2-onnx"]]
@@ -136,7 +139,7 @@ class Building_TRT:
         print(f"Tensorrt engine saved at: {trt_path}")
         return ret
 
-    def building_RGB(self, onnx_path, trt_path):
+    def building_RGB(self, onnx_path, trt_path, Setting=None):
         import tensorrt as trt
         from tensorrt_bindings import Logger
 
@@ -163,7 +166,7 @@ class Building_TRT:
             f.write(engine_bytes)
         return None
 
-    def building_4(self, onnx_path, trt_path, use_fp16):
+    def building_4(self, onnx_path, trt_path, use_fp16, Setting=None):
         engine = Engine(trt_path)
         torch.cuda.empty_cache()
         s = time.time()
@@ -199,7 +202,7 @@ class Building_TRT:
         print(f"Tensorrt engine saved at: {trt_path}")
         return ret
 
-    def building_UpScale(self, onnx_path, trt_path, use_fp16):
+    def building_UpScale(self, onnx_path, trt_path, use_fp16, Setting=None):
         from .Upscaler_.utilities import Engine_SC
         engine = Engine_SC(trt_path)
         torch.cuda.empty_cache()
@@ -237,10 +240,13 @@ class Custom_Building_TRT(Building_TRT):
                 "select_class":(model_class_list,{"default": model_class_list[0],}),
                 "force_building": ("BOOLEAN",{"default": False}),
                 "use_fp16": ("BOOLEAN",{"default": True}),
-            }
+            },
+            "optional": {
+                "AdvancedSetting": ("TRT_SET",),
+            },
         }
     
-    def building(self,select_model,select_class,force_building,use_fp16):
+    def building(self,select_model,select_class,force_building,use_fp16,AdvancedSetting=None):
         # 准备路径和文件字符串
         onnx_name = os.path.basename(select_model)
         trt_name = os.path.splitext(onnx_name)[0] + ".engine"
@@ -269,8 +275,17 @@ class Custom_Building_TRT(Building_TRT):
         return (model,)
 
 
-class General_TensorRT_Run:
-    ...
+#class General_TensorRT_Run: #待开发
+#    ...
+#
+#class TRTset_Rife(): #待开发
+#    ...
+#
+#class TRTset_BiRefNet(): #待开发
+#    ...
+#
+#class TRTset_Upscaler(): #待开发
+#    ...
 
 
 NODE_CLASS_MAPPINGS = {
