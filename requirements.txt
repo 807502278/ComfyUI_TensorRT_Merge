@@ -2,7 +2,8 @@ onnxsim
 onnx
 kornia
 polygraphy
-tensorrt
+tensorrt;sys_platform == "win32"
+tensorrt>=10.8.0.43;sys_platform == "linux" #版本过低可能会出黑图
 cuda-python
 huggingface_hub
 einops

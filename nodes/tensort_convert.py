@@ -8,7 +8,6 @@ import torch
 
 import folder_paths
 from .model_data.load_data import model_collect,SHA256_dict,model_class
-from .export_trt.trt_utilities import Engine_4
 from .export_trt.utilities import Engine
 #from .model_data.util import tensor2pil,tensor2np
 #from .BiRefNet.models.birefnet import BiRefNet
@@ -83,18 +82,22 @@ class Building_TRT:
     def Conversion(self,select_model_class,onnx_path,trt_path,use_fp16): #转换
         model = None
         rife_class = ["rife-onnx",model_class["rife-onnx"]]
-        BiRefNet_class = ["BiRefNet-v2-onnx",model_class["rife-onnx"]]
+        BiRefNet_class = ["BiRefNet-v2-onnx",model_class["BiRefNet-v2-onnx"]]
+        scale_class = ["Upscale-Onnx",model_class["Upscale-Onnx"]]
         all_class = list(model_class.keys()) + list(model_class.values())
-        if select_model_class in rife_class : 
+        if select_model_class in rife_class :  #rife面部重建
             print("Prompt: Current conversion model: Rife")
             model = self.building_4(onnx_path, trt_path, use_fp16)
-        elif select_model_class in BiRefNet_class : 
+        elif select_model_class in BiRefNet_class : #bf抠图
             print("Prompt: Current conversion model: BiRefNet v2")
             model = self.building_RGB(onnx_path, trt_path)
-        elif select_model_class in all_class : 
+        elif select_model_class in scale_class : #缩放
+            print(f"Prompt: Current conversion model: {select_model_class}")
+            model = self.building_UpScale(onnx_path, trt_path, use_fp16)
+        elif select_model_class in all_class :  #其它
             print(f"Prompt: Current conversion model: {select_model_class}")
             model = self.building_A(onnx_path, trt_path, use_fp16)
-        else:
+        else: #不支持的类型
             raise TypeError("Error: Unknown or unsupported type.")
         print(f"Prompt: Conversion successful! The model is saved in:\n {trt_path}")
         return model
@@ -182,6 +185,7 @@ class Building_TRT:
         return ret
     
     def building_4_depth(self, onnx_path, trt_path, use_fp16):
+        from .export_trt.trt_utilities import Engine_4
         engine = Engine_4(trt_path)
 
         s = time.time()
@@ -189,6 +193,24 @@ class Building_TRT:
             onnx_path,
             use_fp16,
             enable_preview=True,
+        )
+        e = time.time()
+        print(f"Time taken to build: {(e-s)} seconds")
+        print(f"Tensorrt engine saved at: {trt_path}")
+        return ret
+
+    def building_UpScale(self, onnx_path, trt_path, use_fp16):
+        from .Upscaler_.utilities import Engine_SC
+        engine = Engine_SC(trt_path)
+        torch.cuda.empty_cache()
+        s = time.time()
+        ret = engine.build(
+            onnx_path,
+            use_fp16,
+            enable_preview=True,
+            input_profile=[
+                {"input": [(1,3,256,256), (1,3,512,512), (1,3,1280,1280)]}, # any sizes from 256x256 to 1280x1280
+            ],
         )
         e = time.time()
         print(f"Time taken to build: {(e-s)} seconds")
