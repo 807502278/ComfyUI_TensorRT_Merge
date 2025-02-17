@@ -229,7 +229,7 @@ class BiRefNet2_tensort:
     def remove_background(self, birefnet, image,reversal_mask):
         net_type, net = birefnet
         processed_masks = []
-
+        B,H,W,C = image.shape()
         transform_image = transforms.Compose([
                 transforms.Resize((1024, 1024)),
                 transforms.ToTensor(),
@@ -238,7 +238,6 @@ class BiRefNet2_tensort:
 
         for image in image:
             orig_image = tensor2pil(image)
-            w,h = orig_image.size
             image = self.resize_image(orig_image)
             im_tensor = transform_image(image).unsqueeze(0)
             im_tensor=im_tensor.to(device)
@@ -258,7 +257,7 @@ class BiRefNet2_tensort:
                     np.copyto(inputs[0].host, image_data)
                     trt_outputs = common.do_inference(context, engine, bindings, inputs, outputs, stream)
                    
-                    numpy_array = np.array(trt_outputs[-1].reshape((1, 1, 1024, 1024)))
+                    numpy_array = np.array(trt_outputs[-1].reshape((1, 1, W, H)))
                     result = torch.from_numpy(numpy_array).sigmoid().cpu()
                     common.free_buffers(inputs, outputs, stream)
             else:
@@ -266,7 +265,7 @@ class BiRefNet2_tensort:
                     result = net(im_tensor)[-1].sigmoid().cpu()
                     
                     
-            result = torch.squeeze(F.interpolate(result, size=(h,w)))
+            result = torch.squeeze(F.interpolate(result, size=(H,W)))
             ma = torch.max(result)
             mi = torch.min(result)
             result = (result-mi)/(ma-mi)
