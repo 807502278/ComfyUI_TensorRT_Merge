@@ -83,7 +83,7 @@ class Building_TRT:
         model = None
         rife_class = ["rife-onnx",model_class["rife-onnx"]]
         BiRefNet_class = ["BiRefNet-v2-onnx",model_class["BiRefNet-v2-onnx"]]
-        scale_class = ["Upscale-Onnx",model_class["Upscale-Onnx"]]
+        scale_class = ["Upscaler-Onnx",model_class["Upscaler-Onnx"]]
         all_class = list(model_class.keys()) + list(model_class.values())
         if select_model_class in rife_class :  #rife面部重建
             print("Prompt: Current conversion model: Rife")
